@@ -2,21 +2,15 @@
 
 #define SERIAL_TERMINATOR '\r'
 #define MAX_SEND_CHAR_SIZE  8
-#define MAX_DATA_SIZE (MAX_SEND_CHAR_SIZE + 2)  // including start bit and end bit
+#define MAX_DATA_SIZE (8 * MAX_SEND_CHAR_SIZE + 2)  // including start bit and end bit
 
-const int pin_clock_v = 4;
-const int pin_encode_output = 22;
-
-typedef struct transfer_data
-{
-  bool bit[MAX_DATA_SIZE];
-} transfer_data_t;
+const byte pin_clock_v = 4;
+const byte pin_encode_output = 22;
 
 volatile bool new_data_arrived = false;
 volatile bool sending_new_data = false;
-volatile transfer_data_t send_data[MAX_SEND_CHAR_SIZE];  // transfer 8 characters with start bit and end bit
+volatile bool send_data[MAX_DATA_SIZE];  // transfer 8 characters with start bit and end bit
 volatile uint8_t clock_v_counter = 0;
-volatile uint8_t sending_data_index = 0;
 volatile uint8_t sending_data_bit_index = 0;
 
 void IRAM_ATTR isr_Callback();
@@ -49,14 +43,12 @@ void loop()
     if(command == "encode" && !sending_new_data)
     {
       const char *data = parameter.c_str();
+      volatile bool *ptr_bit = send_data;
+      *ptr_bit++ = true;  // start bit
       for(uint8_t i = 0; i < MAX_SEND_CHAR_SIZE; i++)
-      {
-        uint8_t idx = 0;
-        send_data[i].bit[idx++] = true;   // start bit
-        for(uint8_t j = 0; j < MAX_SEND_CHAR_SIZE; j++)
-          send_data[i].bit[idx++] = (data[i] >> (7 - j)) & 1;
-        send_data[i].bit[idx] = true;     // end bit
-      }
+        for(uint8_t j = 0; j < 8; j++)  // 8 bits for each character
+          *ptr_bit++ = (data[i] >> (7 - j)) & 1;
+      *ptr_bit++ = true;  // end bit
       new_data_arrived = true;
 
 // for(int i = 0; i < MAX_SEND_CHAR_SIZE; i++)
@@ -94,7 +86,6 @@ void IRAM_ATTR isr_Callback()
   if(new_data_arrived)
   {
     clock_v_counter = 0;
-    sending_data_index = 0;
     sending_data_bit_index = 0;
     new_data_arrived = false;
     sending_new_data = true;
@@ -131,7 +122,7 @@ void IRAM_ATTR isr_Callback()
     if(clock_v_counter == 0)
     {
       // output the first bit from data
-      bool output_bit = send_data[sending_data_index].bit[sending_data_bit_index];
+      bool output_bit = send_data[sending_data_bit_index];
       digitalWrite(pin_encode_output, output_bit);
 //Serial.println("data_index = " + String(sending_data_index) + ", data_bit_index = " + String(sending_data_bit_index) + ", output = " + output_bit);
       //gpio_set_level()
@@ -140,14 +131,11 @@ void IRAM_ATTR isr_Callback()
       if(sending_data_bit_index >= MAX_DATA_SIZE)
       {
         sending_data_bit_index = 0;
-        //  wait_for_transmission = true;
         //  pause_bit = true;
-        sending_data_index++;
-        if(sending_data_index >= MAX_SEND_CHAR_SIZE)
-        { // complete data sending
-          wait_for_transmission = true;
-          end_transmit = true;
-        }
+
+        // complete data sending
+        wait_for_transmission = true;
+        end_transmit = true;
       }
     }
     clock_v_counter = (++clock_v_counter) % 6;

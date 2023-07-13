@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
 // the number of the LED pin
-const int pin_clock_v = 2;
+const byte pin_clock_v = 2;
 
 // setting PWM properties
 const int freq_clock_v = 83333; // in Hz
