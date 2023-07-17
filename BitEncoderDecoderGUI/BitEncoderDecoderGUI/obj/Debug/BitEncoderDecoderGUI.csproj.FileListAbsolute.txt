@@ -1,0 +1,10 @@
+D:\BitEncoderDecoder\BitEncoderDecoderGUI\BitEncoderDecoderGUI\bin\Debug\BitEncoderDecoderGUI.exe.config
+D:\BitEncoderDecoder\BitEncoderDecoderGUI\BitEncoderDecoderGUI\bin\Debug\BitEncoderDecoderGUI.exe
+D:\BitEncoderDecoder\BitEncoderDecoderGUI\BitEncoderDecoderGUI\bin\Debug\BitEncoderDecoderGUI.pdb
+D:\BitEncoderDecoder\BitEncoderDecoderGUI\BitEncoderDecoderGUI\obj\Debug\BitEncoderDecoderGUI.csproj.AssemblyReference.cache
+D:\BitEncoderDecoder\BitEncoderDecoderGUI\BitEncoderDecoderGUI\obj\Debug\BitEncoderDecoderGUI.Properties.Resources.resources
+D:\BitEncoderDecoder\BitEncoderDecoderGUI\BitEncoderDecoderGUI\obj\Debug\BitEncoderDecoderGUI.csproj.GenerateResource.cache
+D:\BitEncoderDecoder\BitEncoderDecoderGUI\BitEncoderDecoderGUI\obj\Debug\BitEncoderDecoderGUI.csproj.CoreCompileInputs.cache
+D:\BitEncoderDecoder\BitEncoderDecoderGUI\BitEncoderDecoderGUI\obj\Debug\BitEncoderDecoderGUI.exe
+D:\BitEncoderDecoder\BitEncoderDecoderGUI\BitEncoderDecoderGUI\obj\Debug\BitEncoderDecoderGUI.pdb
+D:\BitEncoderDecoder\BitEncoderDecoderGUI\BitEncoderDecoderGUI\obj\Debug\BitEncoderDecoderGUI.Form1.resources
