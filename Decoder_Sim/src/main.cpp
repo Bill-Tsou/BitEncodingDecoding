@@ -36,6 +36,7 @@ void setup(){
 uint8_t duty_cycle_i = 128;
 bool random_duty_cycle = false;
 bool flop_duty_cycle = false, flop_state = true;
+uint8_t flop_counter = 0;
 
 void loop(){
   // set the pwm of clock V channel
@@ -61,8 +62,13 @@ void loop(){
   }
   else if(flop_duty_cycle)
   {
-    ledcWrite(channel_clock_i, flop_state ? 52 : 191);
+    ledcWrite(channel_clock_i, flop_state ? 64 : 191);
     flop_state = !flop_state;
+    flop_counter++;
+    if(flop_counter == 2)
+      flop_state = !flop_state;
+    else if(flop_counter == 3)
+      flop_counter = 0;
   }
   else
     ledcWrite(channel_clock_i, duty_cycle_i);

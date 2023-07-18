@@ -37,7 +37,7 @@ void SwitchOpMode(OpMode_t new_mode)
             BitDecoderSetup();
         break;
     }
-    new_mode = mode;
+    mode = new_mode;
 }
 
 OpMode_t GetOpMode()
@@ -75,9 +75,19 @@ void ProcessUART_Msg(String command, String parameter)
                 for(uint8_t j = 0; j < DATA_CHAR_BITS; j++)  // 8 bits for each character
                     *ptr_bit++ = (data[i] >> (7 - j)) & 1;
             *ptr_bit++ = true;  // end bit
-            EncodeSendData();
 
-            SERIAL_RESPONSE("OK");
+            String encoded_binary = "";
+            ptr_bit = GetEncodeSendDataPtr();
+            for(uint8_t i = 0; i < MAX_DATA_BITS; i++)
+            {
+                encoded_binary += (*(ptr_bit + i) ? "1" : "0");
+                if((i == 0) || (i % DATA_CHAR_BITS == 0))
+                    encoded_binary += " ";
+            }
+
+            SERIAL_RESPONSE("OK " + encoded_binary);
+            // send the encoded message after serial response
+            EncodeSendData();
         }
         else
             SERIAL_RESPONSE("Current Mode is not in Encoding Mode!");
@@ -98,9 +108,30 @@ void ProcessDecodeRawData()
     volatile bool *raw_cycle_result = GetDecodeRawCycleResults();
 
 #ifdef DEBUG_MODE
+    // display time difference
+    volatile uint8_t *diff_result = GetDecodeMicroDiffResults();
     // display start bit array
     for(; raw_data_idx < 6; raw_data_idx++)
-    Serial.printf("%d ", (uint8_t)raw_cycle_result[raw_data_idx]);
+        Serial.printf("%02d ", diff_result[raw_data_idx]);
+
+    // display data array
+    for(; raw_data_idx < (MAX_CHAR_NUM * DATA_CHAR_BITS + 1) * CLK_CYCLE_NUM; raw_data_idx++)
+    {
+        if((raw_data_idx - 6) % 48 == 0)
+            Serial.print(SERIAL_TERMINATOR);
+        Serial.printf("%02d ", diff_result[raw_data_idx]);
+    }
+    Serial.print(SERIAL_TERMINATOR);
+
+    // display end bit array
+    for(; raw_data_idx < MAX_CYCLE_DATA; raw_data_idx++)
+        Serial.printf("%02d ", diff_result[raw_data_idx]);
+    Serial.print(SERIAL_TERMINATOR);
+
+    /*-------------------------------------*/
+    // display start bit array
+    for(raw_data_idx = 0; raw_data_idx < 6; raw_data_idx++)
+        Serial.printf("%d ", (uint8_t)raw_cycle_result[raw_data_idx]);
 
     // display data array
     for(; raw_data_idx < (MAX_CHAR_NUM * DATA_CHAR_BITS + 1) * CLK_CYCLE_NUM; raw_data_idx++)

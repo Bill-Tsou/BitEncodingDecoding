@@ -64,9 +64,13 @@ namespace BitEncoderDecoderGUI
         {
             if (mainWindow.serialPort1.IsOpen == false)
             {
+                mainWindow.timer_decode_msg.Stop();
                 MessageBox.Show(mainWindow, "Serial Port Disconnected!", mainWindow.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+            // clear serial read and write buffer
+            mainWindow.serialPort1.DiscardInBuffer();
+            mainWindow.serialPort1.DiscardOutBuffer();
             mainWindow.textBox_port_msg.AppendText("[Send] >> " + msg + "\r\n");
             mainWindow.serialPort1.Write(msg + SerialTerm);
         }
@@ -75,14 +79,15 @@ namespace BitEncoderDecoderGUI
         {
             if (mainWindow.serialPort1.IsOpen == false)
             {
-                MessageBox.Show(mainWindow, "Serial Port Disconnected!", mainWindow.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                mainWindow.timer_decode_msg.Stop();
+                //MessageBox.Show(mainWindow, "Serial Port Disconnected!", mainWindow.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return "";
             }
             string recv_msg = null;
             try {
                 recv_msg = mainWindow.serialPort1.ReadTo(SerialTerm);
             } catch (Exception ex) { }
-            mainWindow.textBox_port_msg.AppendText("[Read] << " + ((recv_msg == null) ? "<No Response>" : recv_msg) + "\r\n");
+            mainWindow.textBox_port_msg.AppendText("[Read] << " + ((recv_msg == null) ? "(No Response)" : recv_msg) + "\r\n");
             return recv_msg;
         }
 

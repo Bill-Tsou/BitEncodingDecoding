@@ -68,11 +68,13 @@ namespace BitEncoderDecoderGUI
                     {
                         textBox_encode_msg.Enabled = true;
                         button_encode_msg_send.Enabled = true;
+                        radioButton_encode_CheckedChanged(sender, e);
                     }
                     else if(radioButton_decode.Checked)
                     {
                         trackBar_decode_th.Enabled = true;
                         label_decode_msg.Text = "--------";
+                        radioButton_decode_CheckedChanged(sender, e);
                     }
                 }
             }
@@ -117,6 +119,8 @@ namespace BitEncoderDecoderGUI
                 string response = Program.SendAndReadSerial("mode decode");
                 if ((response != null) && (response != "OK"))
                     MessageBox.Show(this, "Error: " + response, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // set the threshold
+                trackBar_decode_th_MouseCaptureChanged(sender, e);
 
                 // start decoding message inspection timer
                 timer_decode_msg.Start();
@@ -132,7 +136,7 @@ namespace BitEncoderDecoderGUI
                 return;
             }
             string response = Program.SendAndReadSerial("encode " + encoding_msg);
-            if((response != null) && (response != "OK"))
+            if((response != null) && (response.Contains("OK") == false))
                 MessageBox.Show(this, "Error: " + response, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 

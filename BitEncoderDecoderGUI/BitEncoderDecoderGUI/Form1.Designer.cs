@@ -200,7 +200,7 @@ namespace BitEncoderDecoderGUI
             this.label_decode_th.Name = "label_decode_th";
             this.label_decode_th.Size = new System.Drawing.Size(41, 20);
             this.label_decode_th.TabIndex = 6;
-            this.label_decode_th.Text = "40%";
+            this.label_decode_th.Text = "50%";
             // 
             // label2
             // 
@@ -224,7 +224,7 @@ namespace BitEncoderDecoderGUI
             this.trackBar_decode_th.Size = new System.Drawing.Size(210, 35);
             this.trackBar_decode_th.TabIndex = 4;
             this.trackBar_decode_th.TickFrequency = 10;
-            this.trackBar_decode_th.Value = 40;
+            this.trackBar_decode_th.Value = 50;
             this.trackBar_decode_th.Scroll += new System.EventHandler(this.trackBar_decode_th_Scroll);
             this.trackBar_decode_th.MouseCaptureChanged += new System.EventHandler(this.trackBar_decode_th_MouseCaptureChanged);
             // 

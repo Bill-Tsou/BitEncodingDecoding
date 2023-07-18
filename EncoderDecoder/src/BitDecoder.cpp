@@ -10,6 +10,7 @@ volatile uint16_t cycle_index = 0;
 volatile unsigned long micro_prev_v = 0, micro_prev_i = 0;
 volatile bool is_first_data_bit = false;
 // for debug
+volatile uint8_t micro_diff_result[MAX_CYCLE_DATA];
 volatile unsigned long micro_diff = 0;
 volatile bool is_triggered = false;
 
@@ -88,6 +89,9 @@ void SetDecodeRawDataReceived(bool new_state)
 volatile bool* GetDecodeRawCycleResults()
 { return raw_cycle_result; }
 
+volatile uint8_t* GetDecodeMicroDiffResults()
+{ return micro_diff_result; }
+
 void IRAM_ATTR switch_trigger_source(bool new_state)
 {
   if(new_state)
@@ -129,8 +133,8 @@ void IRAM_ATTR isr_i_falling()
 {
   micro_prev_i = micros();
 micro_diff = micro_prev_i - micro_prev_v;
-  if(micro_diff == 0)
-   return;
+  //if(micro_diff == 0)
+  // return;
   bool cycle_res = (micro_diff > overlap_micro_th) ? 0 : 1;
 
 //digitalWrite(pin_decode_output, cycle_res);
@@ -151,6 +155,7 @@ micro_diff = micro_prev_i - micro_prev_v;
     return;
   }
 
+  micro_diff_result[cycle_index] = micro_diff;
   raw_cycle_result[cycle_index++] = cycle_res;
 
 //   cycle_result[cycle_index++] = (micro_diff > overlap_micro_th) ? 0 : 1;
