@@ -39,7 +39,7 @@ namespace BitEncoderDecoderGUI
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.label_decode_msg = new System.Windows.Forms.Label();
+            this.label_decode_msg1 = new System.Windows.Forms.Label();
             this.label_decode_th = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.trackBar_decode_th = new System.Windows.Forms.TrackBar();
@@ -49,6 +49,7 @@ namespace BitEncoderDecoderGUI
             this.radioButton_encode = new System.Windows.Forms.RadioButton();
             this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
             this.timer_decode_msg = new System.Windows.Forms.Timer(this.components);
+            this.label_decode_msg2 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -72,7 +73,7 @@ namespace BitEncoderDecoderGUI
             this.groupBox1.Size = new System.Drawing.Size(465, 370);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "RS-232 Connection && Messages";
+            this.groupBox1.Text = "UART Connection && Messages";
             // 
             // button_refresh
             // 
@@ -170,7 +171,8 @@ namespace BitEncoderDecoderGUI
             this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox3.Controls.Add(this.label_decode_msg);
+            this.groupBox3.Controls.Add(this.label_decode_msg2);
+            this.groupBox3.Controls.Add(this.label_decode_msg1);
             this.groupBox3.Location = new System.Drawing.Point(56, 169);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(435, 191);
@@ -178,19 +180,19 @@ namespace BitEncoderDecoderGUI
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Decoded Message";
             // 
-            // label_decode_msg
+            // label_decode_msg1
             // 
-            this.label_decode_msg.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.label_decode_msg1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_decode_msg.Font = new System.Drawing.Font("Arial Rounded MT Bold", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label_decode_msg.ForeColor = System.Drawing.Color.Blue;
-            this.label_decode_msg.Location = new System.Drawing.Point(6, 25);
-            this.label_decode_msg.Name = "label_decode_msg";
-            this.label_decode_msg.Size = new System.Drawing.Size(423, 163);
-            this.label_decode_msg.TabIndex = 7;
-            this.label_decode_msg.Text = "--------";
-            this.label_decode_msg.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.label_decode_msg1.Font = new System.Drawing.Font("Arial Rounded MT Bold", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label_decode_msg1.ForeColor = System.Drawing.Color.Blue;
+            this.label_decode_msg1.Location = new System.Drawing.Point(6, 25);
+            this.label_decode_msg1.Name = "label_decode_msg1";
+            this.label_decode_msg1.Size = new System.Drawing.Size(423, 76);
+            this.label_decode_msg1.TabIndex = 7;
+            this.label_decode_msg1.Text = "--------";
+            this.label_decode_msg1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // label_decode_th
             // 
@@ -281,6 +283,20 @@ namespace BitEncoderDecoderGUI
             this.timer_decode_msg.Interval = 200;
             this.timer_decode_msg.Tick += new System.EventHandler(this.timer_decode_msg_Tick);
             // 
+            // label_decode_msg2
+            // 
+            this.label_decode_msg2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label_decode_msg2.Font = new System.Drawing.Font("Arial Rounded MT Bold", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label_decode_msg2.ForeColor = System.Drawing.Color.Blue;
+            this.label_decode_msg2.Location = new System.Drawing.Point(6, 101);
+            this.label_decode_msg2.Name = "label_decode_msg2";
+            this.label_decode_msg2.Size = new System.Drawing.Size(423, 87);
+            this.label_decode_msg2.TabIndex = 8;
+            this.label_decode_msg2.Text = "--------";
+            this.label_decode_msg2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 20F);
@@ -312,7 +328,7 @@ namespace BitEncoderDecoderGUI
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.GroupBox groupBox3;
-        private System.Windows.Forms.Label label_decode_msg;
+        private System.Windows.Forms.Label label_decode_msg1;
         private System.Windows.Forms.Label label_decode_th;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TrackBar trackBar_decode_th;
@@ -325,6 +341,7 @@ namespace BitEncoderDecoderGUI
         public System.IO.Ports.SerialPort serialPort1;
         public System.Windows.Forms.TextBox textBox_port_msg;
         public System.Windows.Forms.Timer timer_decode_msg;
+        private System.Windows.Forms.Label label_decode_msg2;
     }
 }
 

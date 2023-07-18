@@ -73,7 +73,7 @@ namespace BitEncoderDecoderGUI
                     else if(radioButton_decode.Checked)
                     {
                         trackBar_decode_th.Enabled = true;
-                        label_decode_msg.Text = "--------";
+                        label_decode_msg1.Text = "--------";
                         radioButton_decode_CheckedChanged(sender, e);
                     }
                 }
@@ -114,7 +114,7 @@ namespace BitEncoderDecoderGUI
                 button_encode_msg_send.Enabled = false;
                 radioButton_decode.Checked = true;
                 trackBar_decode_th.Enabled = true;
-                label_decode_msg.Text = "--------";
+                label_decode_msg1.Text = "--------";
                 // switch operation mode to decoding
                 string response = Program.SendAndReadSerial("mode decode");
                 if ((response != null) && (response != "OK"))
@@ -178,7 +178,7 @@ namespace BitEncoderDecoderGUI
                     catch (Exception ex)
                     { res += "-"; }
                 }
-                label_decode_msg.Text = res;
+                label_decode_msg1.Text = res;
             }
         }
     }

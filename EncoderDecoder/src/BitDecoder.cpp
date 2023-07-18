@@ -10,7 +10,7 @@ volatile uint16_t cycle_index = 0;
 volatile unsigned long micro_prev_v = 0, micro_prev_i = 0;
 volatile bool is_first_data_bit = false;
 // for debug
-volatile uint8_t micro_diff_result[MAX_CYCLE_DATA];
+//volatile uint8_t micro_diff_result[MAX_CYCLE_DATA];
 volatile unsigned long micro_diff = 0;
 volatile bool is_triggered = false;
 
@@ -28,7 +28,7 @@ void BitDecoderSetup()
 void BitDecoderEnd()
 {
   detachInterrupt(digitalPinToInterrupt(pin_clock_v));
-  detachInterrupt(digitalPinToInterrupt(pin_clock_i));
+  //detachInterrupt(digitalPinToInterrupt(pin_clock_i));
   detachInterrupt(digitalPinToInterrupt(pin_trigger_source));
 }
 
@@ -89,8 +89,8 @@ void SetDecodeRawDataReceived(bool new_state)
 volatile bool* GetDecodeRawCycleResults()
 { return raw_cycle_result; }
 
-volatile uint8_t* GetDecodeMicroDiffResults()
-{ return micro_diff_result; }
+// volatile uint8_t* GetDecodeMicroDiffResults()
+// { return micro_diff_result; }
 
 void IRAM_ATTR switch_trigger_source(bool new_state)
 {
@@ -107,12 +107,12 @@ void IRAM_ATTR switch_trigger_source(bool new_state)
     
     // start decoding from V and I
     attachInterrupt(digitalPinToInterrupt(pin_clock_v), isr_v_rising, RISING);
-    attachInterrupt(digitalPinToInterrupt(pin_clock_i), isr_i_falling, FALLING);
+    //attachInterrupt(digitalPinToInterrupt(pin_clock_i), isr_i_falling, FALLING);
   }
   else
   { // return to triggering state
     detachInterrupt(digitalPinToInterrupt(pin_clock_v));
-    detachInterrupt(digitalPinToInterrupt(pin_clock_i));
+    //detachInterrupt(digitalPinToInterrupt(pin_clock_i));
     attachInterrupt(digitalPinToInterrupt(pin_trigger_source), isr_trig_source, RISING);
     is_triggered = false;
   }
@@ -127,8 +127,38 @@ void IRAM_ATTR isr_trig_source()
 void IRAM_ATTR isr_v_rising()
 {
   micro_prev_v = micros();
+
+  uint8_t diff = 0;
+  do
+  {
+    diff = micros() - micro_prev_v;
+  } while (diff < overlap_micro_th);  // consider latency when triggering isr for 1us
+  
+  uint8_t h_cycle_samples = 0;  // high cycle samples
+  const uint8_t sample_cycles = 5;
+  for(uint8_t i = 0; i < sample_cycles; i++)
+    (digitalRead(pin_clock_i) ? h_cycle_samples++ : h_cycle_samples);
+  
+  bool cycle_res = !(h_cycle_samples > (sample_cycles / 2));
+
+  // search for the first data bit
+  if(is_first_data_bit && (cycle_res == 0))
+  {
+    is_first_data_bit = false;
+    cycle_index = 6;
+  }
+  else if(cycle_index >= MAX_CYCLE_DATA)
+  {
+    switch_trigger_source(false);
+    new_raw_data = true;
+    return;
+  }
+
+  //micro_diff_result[cycle_index] = diff;
+  raw_cycle_result[cycle_index++] = cycle_res;
 }
 
+/*
 void IRAM_ATTR isr_i_falling()
 {
   micro_prev_i = micros();
@@ -191,4 +221,4 @@ micro_diff = micro_prev_i - micro_prev_v;
 //       }
 //     }
 //   }
-}
+}*/

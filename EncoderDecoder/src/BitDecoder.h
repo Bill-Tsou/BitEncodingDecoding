@@ -21,12 +21,12 @@ bool IsDecodeRawDataReceived();
 void SetDecodeRawDataReceived(bool new_state);
 
 volatile bool* GetDecodeRawCycleResults();
-volatile uint8_t* GetDecodeMicroDiffResults();
+//volatile uint8_t* GetDecodeMicroDiffResults();
 
 /** internal functions used in Decoder */
 void IRAM_ATTR switch_trigger_source(bool new_state);
 void IRAM_ATTR isr_trig_source();
 void IRAM_ATTR isr_v_rising();
-void IRAM_ATTR isr_i_falling();
+//void IRAM_ATTR isr_i_falling();
 
 #endif

@@ -109,24 +109,24 @@ void ProcessDecodeRawData()
 
 #ifdef DEBUG_MODE
     // display time difference
-    volatile uint8_t *diff_result = GetDecodeMicroDiffResults();
+    // volatile uint8_t *diff_result = GetDecodeMicroDiffResults();
     // display start bit array
-    for(; raw_data_idx < 6; raw_data_idx++)
-        Serial.printf("%02d ", diff_result[raw_data_idx]);
+    // for(; raw_data_idx < 6; raw_data_idx++)
+    //     Serial.printf("%02d ", diff_result[raw_data_idx]);
 
     // display data array
-    for(; raw_data_idx < (MAX_CHAR_NUM * DATA_CHAR_BITS + 1) * CLK_CYCLE_NUM; raw_data_idx++)
-    {
-        if((raw_data_idx - 6) % 48 == 0)
-            Serial.print(SERIAL_TERMINATOR);
-        Serial.printf("%02d ", diff_result[raw_data_idx]);
-    }
-    Serial.print(SERIAL_TERMINATOR);
+    // for(; raw_data_idx < (MAX_CHAR_NUM * DATA_CHAR_BITS + 1) * CLK_CYCLE_NUM; raw_data_idx++)
+    // {
+    //     if((raw_data_idx - 6) % 48 == 0)
+    //         Serial.print(SERIAL_TERMINATOR);
+    //     Serial.printf("%02d ", diff_result[raw_data_idx]);
+    // }
+    // Serial.print(SERIAL_TERMINATOR);
 
     // display end bit array
-    for(; raw_data_idx < MAX_CYCLE_DATA; raw_data_idx++)
-        Serial.printf("%02d ", diff_result[raw_data_idx]);
-    Serial.print(SERIAL_TERMINATOR);
+    // for(; raw_data_idx < MAX_CYCLE_DATA; raw_data_idx++)
+    //     Serial.printf("%02d ", diff_result[raw_data_idx]);
+    // Serial.print(SERIAL_TERMINATOR);
 
     /*-------------------------------------*/
     // display start bit array
