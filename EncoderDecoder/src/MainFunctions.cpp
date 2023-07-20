@@ -50,13 +50,13 @@ void ProcessUART_Msg(String command, String parameter)
     {
         if(parameter == "encode")
         {
-            SwitchOpMode(OpMode_t::Encoding);
             SERIAL_RESPONSE("OK");
+            SwitchOpMode(OpMode_t::Encoding);
         }
         else if(parameter == "decode")
         {
-            SwitchOpMode(OpMode_t::Decoding);
             SERIAL_RESPONSE("OK");
+            SwitchOpMode(OpMode_t::Decoding);
         }
         else
             SERIAL_RESPONSE("Invalid Mode! [encode / decode]");
@@ -99,6 +99,9 @@ void ProcessUART_Msg(String command, String parameter)
             SERIAL_RESPONSE("Invalid Percentage!");
         else
             SERIAL_RESPONSE("OK");
+            
+        // update the mode to make RTOS back on interrupts procedure
+        SwitchOpMode(GetOpMode());
     }
 }
 

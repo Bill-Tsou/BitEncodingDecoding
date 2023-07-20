@@ -3,6 +3,15 @@
 
 #include "Params.h"
 
+enum Trig_State_t
+{
+    WAIT_FOR_TRIGGER,
+    TRIGGER_SOURCE1,
+#ifdef TWO_I_CLOCKS
+    TRIGGER_SOURCE2
+#endif
+};
+
 void BitDecoderSetup();
 void BitDecoderEnd();
 
@@ -24,8 +33,11 @@ volatile bool* GetDecodeRawCycleResults();
 //volatile uint8_t* GetDecodeMicroDiffResults();
 
 /** internal functions used in Decoder */
-void IRAM_ATTR switch_trigger_source(bool new_state);
-void IRAM_ATTR isr_trig_source();
+void IRAM_ATTR switch_trigger_source(Trig_State_t new_state);
+void IRAM_ATTR isr_trig_source1();
+#ifdef TWO_I_CLOCKS
+void IRAM_ATTR isr_trig_source2();
+#endif
 void IRAM_ATTR isr_v_rising();
 //void IRAM_ATTR isr_i_falling();
 

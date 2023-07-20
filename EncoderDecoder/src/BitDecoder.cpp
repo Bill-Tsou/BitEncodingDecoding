@@ -13,24 +13,30 @@ volatile bool is_first_data_bit = false;
 //volatile uint8_t micro_diff_result[MAX_CYCLE_DATA];
 volatile unsigned long micro_diff = 0;
 volatile bool is_triggered = false;
+volatile uint8_t pin_i_clock_selection = pin_clock_i1;
 
 void BitDecoderSetup()
 {
     //pinMode(pin_decode_output, OUTPUT);
     pinMode(pin_trigger_source1, INPUT_PULLDOWN);
-    pinMode(pin_trigger_source2, INPUT_PULLDOWN);
     pinMode(pin_clock_v, INPUT_PULLDOWN);
-    pinMode(pin_clock_i, INPUT_PULLDOWN);
+    pinMode(pin_clock_i1, INPUT_PULLDOWN);
+#ifdef TWO_I_CLOCKS
+    pinMode(pin_clock_i2, INPUT_PULLDOWN);
+    pinMode(pin_trigger_source2, INPUT_PULLDOWN);
+#endif
 
     // wait until trigger source is triggered
-    switch_trigger_source(false);
+    switch_trigger_source(WAIT_FOR_TRIGGER);
 }
 
 void BitDecoderEnd()
 {
   detachInterrupt(digitalPinToInterrupt(pin_clock_v));
-  //detachInterrupt(digitalPinToInterrupt(pin_clock_i));
   detachInterrupt(digitalPinToInterrupt(pin_trigger_source1));
+#ifdef TWO_I_CLOCKS
+  detachInterrupt(digitalPinToInterrupt(pin_trigger_source2));
+#endif
 }
 
 bool Decode_ChangeVI_Th(uint8_t overlap_percentage)
@@ -93,39 +99,56 @@ volatile bool* GetDecodeRawCycleResults()
 // volatile uint8_t* GetDecodeMicroDiffResults()
 // { return micro_diff_result; }
 
-void IRAM_ATTR switch_trigger_source(bool new_state)
+void IRAM_ATTR switch_trigger_source(Trig_State_t new_state)
 {
-  if(new_state)
+  switch(new_state)
   {
-    detachInterrupt(digitalPinToInterrupt(pin_trigger_source1));
-    detachInterrupt(digitalPinToInterrupt(pin_trigger_source2));
-    
-    // initialize variables
-    is_triggered = true;
-    is_first_data_bit = true;
-    cycle_index = 0;
-    for(uint8_t i = 0; i < 6; i++)
-      raw_cycle_result[i] = 0;
-    
-    // start decoding from V and I
-    attachInterrupt(digitalPinToInterrupt(pin_clock_v), isr_v_rising, RISING);
-    //attachInterrupt(digitalPinToInterrupt(pin_clock_i), isr_i_falling, FALLING);
-  }
-  else
-  { // return to triggering state
-    detachInterrupt(digitalPinToInterrupt(pin_clock_v));
-    //detachInterrupt(digitalPinToInterrupt(pin_clock_i));
-    attachInterrupt(digitalPinToInterrupt(pin_trigger_source1), isr_trig_source, RISING);
-    attachInterrupt(digitalPinToInterrupt(pin_trigger_source2), isr_trig_source, RISING);
-    is_triggered = false;
+    case TRIGGER_SOURCE1:
+#ifdef TWO_I_CLOCKS
+    case TRIGGER_SOURCE2:
+#endif
+      detachInterrupt(digitalPinToInterrupt(pin_trigger_source1));
+#ifdef TWO_I_CLOCKS
+      detachInterrupt(digitalPinToInterrupt(pin_trigger_source2));
+#endif
+
+      // initialize variables
+      is_triggered = true;
+      is_first_data_bit = true;
+      cycle_index = 0;
+      for(uint8_t i = 0; i < 6; i++)
+        raw_cycle_result[i] = 0;
+#ifdef TWO_I_CLOCKS
+      pin_i_clock_selection = (new_state == TRIGGER_SOURCE1) ? pin_clock_i1 : pin_clock_i2;
+#endif
+      
+      // start decoding from V and I
+      attachInterrupt(digitalPinToInterrupt(pin_clock_v), isr_v_rising, RISING);
+
+    break;
+
+    default:
+      // return to triggering state
+      detachInterrupt(digitalPinToInterrupt(pin_clock_v));
+      attachInterrupt(digitalPinToInterrupt(pin_trigger_source1), isr_trig_source1, RISING);
+#ifdef TWO_I_CLOCKS
+      attachInterrupt(digitalPinToInterrupt(pin_trigger_source2), isr_trig_source2, RISING);
+#endif
+      is_triggered = false;
   }
 }
 
-void IRAM_ATTR isr_trig_source()
+void IRAM_ATTR isr_trig_source1()
 {
-  //cycle_index = bit_index = data_index = 0;
-  switch_trigger_source(true);
+  switch_trigger_source(TRIGGER_SOURCE1);
 }
+
+#ifdef TWO_I_CLOCKS
+void IRAM_ATTR isr_trig_source2()
+{
+  switch_trigger_source(TRIGGER_SOURCE2);
+}
+#endif
 
 void IRAM_ATTR isr_v_rising()
 {
@@ -140,7 +163,7 @@ void IRAM_ATTR isr_v_rising()
   uint8_t h_cycle_samples = 0;  // high cycle samples
   const uint8_t sample_cycles = 5;
   for(uint8_t i = 0; i < sample_cycles; i++)
-    (digitalRead(pin_clock_i) ? h_cycle_samples++ : h_cycle_samples);
+    (digitalRead(pin_i_clock_selection) ? h_cycle_samples++ : h_cycle_samples);
   
   bool cycle_res = !(h_cycle_samples > (sample_cycles / 2));
 
@@ -152,7 +175,7 @@ void IRAM_ATTR isr_v_rising()
   }
   else if(cycle_index >= MAX_CYCLE_DATA)
   {
-    switch_trigger_source(false);
+    switch_trigger_source(WAIT_FOR_TRIGGER);
     new_raw_data = true;
     return;
   }
