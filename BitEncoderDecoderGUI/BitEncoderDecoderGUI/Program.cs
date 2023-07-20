@@ -20,6 +20,8 @@ namespace BitEncoderDecoderGUI
             Application.Run(new Form1());
         }
 
+        public const bool SIM_ON_DECODE = false;
+
         public const string DecodeIdentifier = "Decoded Result: ";
         private const string SerialTerm = "\r";
 

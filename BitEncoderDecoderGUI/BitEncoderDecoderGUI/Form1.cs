@@ -184,9 +184,15 @@ Console.WriteLine("idx = " + i.ToString() + ", data = " + sep_resp[i]);
                     { continue; }
                 }
                 if (decoded_text_index == 0)
-                    label_decode_msg1.Text = res;
+                    if(Program.SIM_ON_DECODE)
+                        label_decode_msg1.Text = "ABC-1234";
+                    else
+                        label_decode_msg1.Text = res;
                 else if (decoded_text_index == 1)
-                    label_decode_msg2.Text = res;
+                    if (Program.SIM_ON_DECODE)
+                        label_decode_msg2.Text = "BCD-2345";
+                    else
+                        label_decode_msg2.Text = res;
 
                 if ((++decoded_text_index) >= 2)
                     decoded_text_index = 0;
