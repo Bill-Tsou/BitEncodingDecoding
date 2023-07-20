@@ -20,6 +20,7 @@ namespace BitEncoderDecoderGUI
             Application.Run(new Form1());
         }
 
+        public const string DecodeIdentifier = "Decoded Result: ";
         private const string SerialTerm = "\r";
 
         static private Form1 mainWindow = null;
@@ -75,19 +76,26 @@ namespace BitEncoderDecoderGUI
             mainWindow.serialPort1.Write(msg + SerialTerm);
         }
 
-        static public string ReadSerialResponse()
+        static public string ReadSerialResponse(bool extract_decode_msg = false)
         {
             if (mainWindow.serialPort1.IsOpen == false)
             {
                 mainWindow.timer_decode_msg.Stop();
-                //MessageBox.Show(mainWindow, "Serial Port Disconnected!", mainWindow.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return "";
+                return null;
             }
             string recv_msg = null;
-            try {
-                recv_msg = mainWindow.serialPort1.ReadTo(SerialTerm);
-            } catch (Exception ex) { }
-            mainWindow.textBox_port_msg.AppendText("[Read] << " + ((recv_msg == null) ? "(No Response)" : recv_msg) + "\r\n");
+            do
+            {
+                try
+                {
+                    recv_msg = mainWindow.serialPort1.ReadTo(SerialTerm);
+                }
+                catch (Exception ex) { }
+                mainWindow.textBox_port_msg.AppendText("[Read] << " + ((recv_msg == null) ? "(No Response)" : recv_msg) + "\r\n");
+                if (extract_decode_msg && (recv_msg != null) && recv_msg.Contains(DecodeIdentifier))
+                    break;
+            } while (extract_decode_msg && (recv_msg != null));
+            
             return recv_msg;
         }
 

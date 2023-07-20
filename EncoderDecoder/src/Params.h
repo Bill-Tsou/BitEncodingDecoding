@@ -21,7 +21,7 @@ const byte pin_encode_output = 22;
 const uint16_t MAX_CYCLE_DATA = MAX_DATA_BITS * CLK_CYCLE_NUM;  // including start bit and end bit
 
 const byte pin_clock_i = 5;
-const byte pin_trigger_source = 21; // connects to encode output (pin_encode_output) when decoding
-
+const byte pin_trigger_source1 = 21; // connects to encode output (pin_encode_output) when decoding
+const byte pin_trigger_source2 = 23; // connects to encode output (pin_encode_output) when decoding for physical connection
 
 #endif

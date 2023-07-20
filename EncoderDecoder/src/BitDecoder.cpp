@@ -17,7 +17,8 @@ volatile bool is_triggered = false;
 void BitDecoderSetup()
 {
     //pinMode(pin_decode_output, OUTPUT);
-    pinMode(pin_trigger_source, INPUT_PULLDOWN);
+    pinMode(pin_trigger_source1, INPUT_PULLDOWN);
+    pinMode(pin_trigger_source2, INPUT_PULLDOWN);
     pinMode(pin_clock_v, INPUT_PULLDOWN);
     pinMode(pin_clock_i, INPUT_PULLDOWN);
 
@@ -29,7 +30,7 @@ void BitDecoderEnd()
 {
   detachInterrupt(digitalPinToInterrupt(pin_clock_v));
   //detachInterrupt(digitalPinToInterrupt(pin_clock_i));
-  detachInterrupt(digitalPinToInterrupt(pin_trigger_source));
+  detachInterrupt(digitalPinToInterrupt(pin_trigger_source1));
 }
 
 bool Decode_ChangeVI_Th(uint8_t overlap_percentage)
@@ -96,7 +97,8 @@ void IRAM_ATTR switch_trigger_source(bool new_state)
 {
   if(new_state)
   {
-    detachInterrupt(digitalPinToInterrupt(pin_trigger_source));
+    detachInterrupt(digitalPinToInterrupt(pin_trigger_source1));
+    detachInterrupt(digitalPinToInterrupt(pin_trigger_source2));
     
     // initialize variables
     is_triggered = true;
@@ -113,7 +115,8 @@ void IRAM_ATTR switch_trigger_source(bool new_state)
   { // return to triggering state
     detachInterrupt(digitalPinToInterrupt(pin_clock_v));
     //detachInterrupt(digitalPinToInterrupt(pin_clock_i));
-    attachInterrupt(digitalPinToInterrupt(pin_trigger_source), isr_trig_source, RISING);
+    attachInterrupt(digitalPinToInterrupt(pin_trigger_source1), isr_trig_source, RISING);
+    attachInterrupt(digitalPinToInterrupt(pin_trigger_source2), isr_trig_source, RISING);
     is_triggered = false;
   }
 }

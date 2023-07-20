@@ -74,6 +74,7 @@ namespace BitEncoderDecoderGUI
                     {
                         trackBar_decode_th.Enabled = true;
                         label_decode_msg1.Text = "--------";
+                        label_decode_msg2.Text = "--------";
                         radioButton_decode_CheckedChanged(sender, e);
                     }
                 }
@@ -115,6 +116,7 @@ namespace BitEncoderDecoderGUI
                 radioButton_decode.Checked = true;
                 trackBar_decode_th.Enabled = true;
                 label_decode_msg1.Text = "--------";
+                label_decode_msg2.Text = "--------";
                 // switch operation mode to decoding
                 string response = Program.SendAndReadSerial("mode decode");
                 if ((response != null) && (response != "OK"))
@@ -163,23 +165,35 @@ namespace BitEncoderDecoderGUI
         }
 
         private void timer_decode_msg_Tick(object sender, EventArgs e)
-        {
-            string response = Program.ReadSerialResponse();
-            const string identifier = "Decoded Result: ";
-            if ((response != null) && (response.Contains(identifier)))
+        {   // read and display the decoded results details at once
+            string response = Program.ReadSerialResponse(true);
+            if ((response != null) && (response.Contains(Program.DecodeIdentifier)))
             {   // split the result and display on window
-                response = response.Remove(0, identifier.Length);
+                response = response.Remove(0, Program.DecodeIdentifier.Length);
                 string[] sep_resp = response.Split(' ');
                 string res = "";
+Console.WriteLine("length = " + sep_resp.Length.ToString());
                 for (int i = 0; i < sep_resp.Length; i++)
                 {
                     try
-                    { res += ((Char)Convert.ToByte(sep_resp[i])).ToString(); }
+                    {
+Console.WriteLine("idx = " + i.ToString() + ", data = " + sep_resp[i]);
+                        res += ((Char)Convert.ToByte(sep_resp[i])).ToString();
+                    }
                     catch (Exception ex)
-                    { res += "-"; }
+                    { continue; }
                 }
-                label_decode_msg1.Text = res;
+                if (decoded_text_index == 0)
+                    label_decode_msg1.Text = res;
+                else if (decoded_text_index == 1)
+                    label_decode_msg2.Text = res;
+
+                if ((++decoded_text_index) >= 2)
+                    decoded_text_index = 0;
             }
         }
+
+        // variable to toggle the current display text after decoded
+        private int decoded_text_index = 0;
     }
 }
