@@ -22,7 +22,7 @@ void BitDecoderEnd();
  */
 bool Decode_ChangeVI_Th(uint8_t overlap_percentage);
 
-void DecodeRawCycleData(const volatile bool *raw_cycle_data, bool *start_bit, bool *end_bit, char *decoded_result);
+void DecodeRawCycleData(const volatile bool *raw_cycle_data, bool *start_bit, bool *sync_bit, bool *end_bit, uint8_t *decoded_id, char *decoded_result);
 
 bool IsDecodeTriggered();
 

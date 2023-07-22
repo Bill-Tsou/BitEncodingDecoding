@@ -5,9 +5,12 @@
 
 // global parameters
 #define CLK_CYCLE_NUM       6
+
+// data format: [1 start-bit (1)] [1 sync-bit (0)] [1 id bit] [8x8 data bits] [1 end-bit (1)] with total 68 bits
+#define ID_BIT              1       // 1 id bit for differentiating encoders
 #define DATA_CHAR_BITS      8       // 8 bits for a single character
 #define MAX_CHAR_NUM        8       // send or receive 8 chars in a row
-#define MAX_DATA_BITS       (DATA_CHAR_BITS * MAX_CHAR_NUM + 2) // including start bit and end bit
+#define MAX_DATA_BITS       (DATA_CHAR_BITS * MAX_CHAR_NUM + 3 + ID_BIT) // including start bit, end bit and sync bit
 
 /** @brief  define DEBUG_MODE only if you'd like to inspect the decode results with UART,
  *          in normal operations, please comment this definition

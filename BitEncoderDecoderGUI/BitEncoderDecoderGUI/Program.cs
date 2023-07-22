@@ -20,7 +20,8 @@ namespace BitEncoderDecoderGUI
             Application.Run(new Form1());
         }
 
-        public const bool SIM_ON_DECODE = false;
+        // public const bool SIM_ON_DECODE = false;
+        public const int MAX_DECODED_DATA_NUMBER = 2;
 
         public const string DecodeIdentifier = "Decoded Result: ";
         private const string SerialTerm = "\r";
@@ -40,7 +41,7 @@ namespace BitEncoderDecoderGUI
             mainWindow.serialPort1.PortName = mainWindow.comboBox_port.Text;
             mainWindow.serialPort1.BaudRate = 115200;
             mainWindow.serialPort1.Parity = Parity.None;
-            mainWindow.serialPort1.ReadTimeout = 20;
+            mainWindow.serialPort1.ReadTimeout = 50;
             mainWindow.serialPort1.WriteTimeout = 20;
 
             try {

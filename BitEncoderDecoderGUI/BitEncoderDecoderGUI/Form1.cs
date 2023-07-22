@@ -15,6 +15,12 @@ namespace BitEncoderDecoderGUI
         public Form1()
         {
             InitializeComponent();
+            // initialize array of data
+            decoded_data_order_index = new int[Program.MAX_DECODED_DATA_NUMBER];
+            for (int i = 0; i < decoded_data_order_index.Length; i++)
+                decoded_data_order_index[i] = -1;
+            decoded_data = new string[Program.MAX_DECODED_DATA_NUMBER];
+
             // register Form1 object to Program once initialized
             Program.RegisterForm1(this);
         }
@@ -22,6 +28,8 @@ namespace BitEncoderDecoderGUI
         private void Form1_Load(object sender, EventArgs e)
         {   // initialize available COM ports
             Program.RefreshAvailablePorts();
+            // initialize the comboBox selection
+            comboBox_encode_id.SelectedIndex = 0;
 
             //string str_test = "Decoded Result: 49 50 51 52 53 54 55 57";
             //str_test = str_test.Remove(0, "Decoded Result: ".Length);
@@ -40,6 +48,7 @@ namespace BitEncoderDecoderGUI
                     button_refresh.Enabled = true;
                     // disable all items
                     radioButton_encode.Enabled = false;
+                    comboBox_encode_id.Enabled = false;
                     textBox_encode_msg.Enabled = false;
                     button_encode_msg_send.Enabled = false;
                     radioButton_decode.Enabled = false;
@@ -66,6 +75,7 @@ namespace BitEncoderDecoderGUI
                     // enable items
                     if (radioButton_encode.Checked)
                     {
+                        comboBox_encode_id.Enabled = true;
                         textBox_encode_msg.Enabled = true;
                         button_encode_msg_send.Enabled = true;
                         radioButton_encode_CheckedChanged(sender, e);
@@ -92,6 +102,7 @@ namespace BitEncoderDecoderGUI
             if(radioButton_encode.Checked)
             {
                 radioButton_encode.Checked = true;
+                comboBox_encode_id.Enabled = true;
                 textBox_encode_msg.Enabled = true;
                 button_encode_msg_send.Enabled = true;
                 radioButton_decode.Checked = false;
@@ -111,6 +122,7 @@ namespace BitEncoderDecoderGUI
             if(radioButton_decode.Checked)
             {
                 radioButton_encode.Checked = false;
+                comboBox_encode_id.Enabled = false;
                 textBox_encode_msg.Enabled = false;
                 button_encode_msg_send.Enabled = false;
                 radioButton_decode.Checked = true;
@@ -131,13 +143,21 @@ namespace BitEncoderDecoderGUI
 
         private void button_encode_msg_send_Click(object sender, EventArgs e)
         {
+            // specify id number first
+            string response = Program.SendAndReadSerial("id " + comboBox_encode_id.SelectedIndex.ToString());
+            if((response != null) && (response.Contains("OK") == false))
+            {
+                MessageBox.Show(this, "Error while Setting Encoding ID Number!", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             string encoding_msg = textBox_encode_msg.Text;
             if (encoding_msg.Length != 8)
             {
                 MessageBox.Show(this, "Encoding Message Length must be 8!", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
-            string response = Program.SendAndReadSerial("encode " + encoding_msg);
+            response = Program.SendAndReadSerial("encode " + encoding_msg);
             if((response != null) && (response.Contains("OK") == false))
                 MessageBox.Show(this, "Error: " + response, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
@@ -173,17 +193,69 @@ namespace BitEncoderDecoderGUI
                 string[] sep_resp = response.Split(' ');
                 string res = "";
 Console.WriteLine("length = " + sep_resp.Length.ToString());
-                for (int i = 0; i < sep_resp.Length; i++)
+                int index = 0;
+                try
                 {
-                    try
-                    {
-Console.WriteLine("idx = " + i.ToString() + ", data = " + sep_resp[i]);
-                        res += ((Char)Convert.ToByte(sep_resp[i])).ToString();
+                    // store ID of encoder
+                    int decoded_index = Convert.ToInt32(sep_resp[index++]);
+                    if (decoded_index < Program.MAX_DECODED_DATA_NUMBER)
+                    {   // find not -1 value (empty) or duplicated index to put new decoded index
+                        for(int i = 0; i < Program.MAX_DECODED_DATA_NUMBER; i++)
+                            if((decoded_data_order_index[i] == -1) || (decoded_data_order_index[i] == decoded_index))
+                            {
+                                decoded_data_order_index[i] = decoded_index;
+                                break;
+                            }
                     }
-                    catch (Exception ex)
-                    { continue; }
+                    else
+                    {
+                        MessageBox.Show(this, "[Error] Decoded Data ID " + decoded_index.ToString() + ", out of Range " +
+                            Program.MAX_DECODED_DATA_NUMBER.ToString() + "!", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+Console.WriteLine("ID = " + decoded_index.ToString());
+                    // store the decoded data
+                    for (; index < sep_resp.Length; index++)
+                    {
+                        try
+                        {
+                            Console.WriteLine("idx = " + index.ToString() + ", data = " + sep_resp[index]);
+                            res += ((Char)Convert.ToByte(sep_resp[index])).ToString();
+                        }
+                        catch (Exception ex)
+                        { continue; }
+                    }
+
+                    // store the decoded result
+                    decoded_data[decoded_index] = res;
+
+                    // scan if all decoded ID data has been received
+                    bool all_decoded_data_arrived = true;
+                    foreach (int data in decoded_data_order_index)
+                        if (data == -1)
+                        {
+                            all_decoded_data_arrived = false;
+                            break;
+                        }
+                    if (all_decoded_data_arrived)
+                    {
+                        // display the ID and corresponding results
+                        label_decoded_id1.Text = "ID " + decoded_data_order_index[0].ToString();
+                        label_decode_msg1.Text = decoded_data[decoded_data_order_index[0]];
+                        label_decoded_id2.Text = "ID " + decoded_data_order_index[1].ToString();
+                        label_decode_msg2.Text = decoded_data[decoded_data_order_index[1]];
+
+                        // reset data arrival array
+                        for (int i = 0; i < decoded_data_order_index.Length; i++)
+                            decoded_data_order_index[i] = -1;
+                    }
                 }
-                if (decoded_text_index == 0)
+                catch (Exception ex)
+                {
+                    MessageBox.Show(this, "[Error] Invalid Decoded Message: " + ex.Message, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                
+                /*if (decoded_text_index == 0)
                     if(Program.SIM_ON_DECODE)
                         label_decode_msg1.Text = "ABC-1234";
                     else
@@ -196,10 +268,12 @@ Console.WriteLine("idx = " + i.ToString() + ", data = " + sep_resp[i]);
 
                 if ((++decoded_text_index) >= 2)
                     decoded_text_index = 0;
+                */
             }
         }
 
         // variable to toggle the current display text after decoded
-        private int decoded_text_index = 0;
+        private int[] decoded_data_order_index;
+        private string[] decoded_data;
     }
 }

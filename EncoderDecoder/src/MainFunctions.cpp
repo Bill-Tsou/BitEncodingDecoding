@@ -2,6 +2,7 @@
 
 // annouce variable to store current operation mode
 OpMode_t mode;
+uint8_t encoder_id = 0;
 
 void Initialize()
 {
@@ -61,6 +62,11 @@ void ProcessUART_Msg(String command, String parameter)
         else
             SERIAL_RESPONSE("Invalid Mode! [encode / decode]");
     }
+    else if(command == "id")
+    {
+        encoder_id = parameter.toInt();
+        SERIAL_RESPONSE("OK");
+    }
     /** @remark for encoding */
     else if(command == "encode")
     {
@@ -71,6 +77,8 @@ void ProcessUART_Msg(String command, String parameter)
             const char *data = parameter.c_str();
             volatile bool *ptr_bit = GetEncodeSendDataPtr();
             *ptr_bit++ = true;  // start bit
+            *ptr_bit++ = false; // sync bit
+            *ptr_bit++ = encoder_id & 1;    // id bit
             for(uint8_t i = 0; i < MAX_CHAR_NUM; i++)
                 for(uint8_t j = 0; j < DATA_CHAR_BITS; j++)  // 8 bits for each character
                     *ptr_bit++ = (data[i] >> (7 - j)) & 1;
@@ -78,10 +86,17 @@ void ProcessUART_Msg(String command, String parameter)
 
             String encoded_binary = "";
             ptr_bit = GetEncodeSendDataPtr();
-            for(uint8_t i = 0; i < MAX_DATA_BITS; i++)
+            uint8_t bit_index = 0;
+            encoded_binary += ptr_bit[bit_index++] ? "1" : "0"; // start bit
+            encoded_binary += " ";
+            encoded_binary += ptr_bit[bit_index++] ? "1" : "0"; // sync bit
+            encoded_binary += " ";
+            encoded_binary += ptr_bit[bit_index++] ? "1" : "0"; // id bit
+            encoded_binary += " ";
+            for(; bit_index < MAX_DATA_BITS; bit_index++)       // data bits and end bit
             {
-                encoded_binary += (*(ptr_bit + i) ? "1" : "0");
-                if((i == 0) || (i % DATA_CHAR_BITS == 0))
+                encoded_binary += (*(ptr_bit + bit_index) ? "1" : "0");
+                if((bit_index - 2) % DATA_CHAR_BITS == 0)
                     encoded_binary += " ";
             }
 
@@ -153,16 +168,18 @@ void ProcessDecodeRawData()
 
     // start decoding raw cycle data
     char decode_result[MAX_CHAR_NUM];
-    bool start_bit, end_bit;
-    DecodeRawCycleData(raw_cycle_result, &start_bit, &end_bit, decode_result);
+    uint8_t decoded_id;
+    bool start_bit, end_bit, sync_bit;
+    DecodeRawCycleData(raw_cycle_result, &start_bit, &sync_bit, &end_bit, &decoded_id, decode_result);
 
 #ifdef DEBUG_MODE
-    Serial.printf("Start Bit = %d, End Bit = %d", (uint8_t)start_bit, (uint8_t)end_bit);
+    Serial.printf("Start Bit = %d, Sync Bit = %d, End Bit = %d", (uint8_t)start_bit, (uint8_t)sync_bit, (uint8_t)end_bit);
     Serial.print(SERIAL_TERMINATOR);
 #endif
 
-    // display the decoded result ASCII code in decimal
+    // return the decoded ID number and ASCII code in decimal
     Serial.print("Decoded Result: ");
+    Serial.printf("%d ", decoded_id);
     for(uint8_t i = 0; i < MAX_CHAR_NUM; i++)
         Serial.printf("%d ", (uint8_t)decode_result[i]);
     Serial.print(SERIAL_TERMINATOR);

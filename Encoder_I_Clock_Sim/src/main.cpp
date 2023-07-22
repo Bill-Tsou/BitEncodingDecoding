@@ -1,9 +1,12 @@
 #include <Arduino.h>
 
 #define CLK_CYCLE_NUM       6
+
+// data format: [1 start-bit (1)] [1 sync-bit (0)] [1 id bit] [8x8 data bits] [1 end-bit (1)] with total 68 bits
+#define ID_BIT              1       // 1 id bit for differentiating encoders
 #define DATA_CHAR_BITS      8       // 8 bits for a single character
 #define MAX_CHAR_NUM        8       // send or receive 8 chars in a row
-#define MAX_DATA_BITS       (DATA_CHAR_BITS * MAX_CHAR_NUM + 2) // including start bit and end bit
+#define MAX_DATA_BITS       (DATA_CHAR_BITS * MAX_CHAR_NUM + 3 + ID_BIT) // including start bit, end bit and sync bit
 
 /** parameters of UART */
 #define SERIAL_TERMINATOR '\r'
@@ -14,6 +17,7 @@ const byte pin_clock_v = 4;   // V clock input for interrupt
 const byte pin_trigger_source = 5;
 const byte pin_clock_i_sim = 22;  // I clock output for simulation
 
+uint8_t encoder_id = 0;
 volatile bool sending_new_data = false;
 volatile bool send_data[MAX_DATA_BITS];  // transfer 8 characters with start bit and end bit
 volatile uint8_t clock_v_counter = 0;
@@ -49,22 +53,45 @@ void loop()
     { // only for V & I encode mode
       SERIAL_RESPONSE("OK");
     }
+    else if(command == "id")
+    {
+        encoder_id = parameter.toInt();
+        SERIAL_RESPONSE("OK");
+    }
     else if(command == "encode")
     {
       if(parameter.length() != MAX_CHAR_NUM)
         SERIAL_RESPONSE("Invalid Data Num, which should be " + String(MAX_CHAR_NUM));
       else
       {
-        SERIAL_RESPONSE("OK");
 
         const char *data = parameter.c_str();
         // encode data to binary ASCII code
         volatile bool *ptr_sim = send_data;
         *ptr_sim++ = true;  // start bit
+        *ptr_sim++ = false; // sync bit
+        *ptr_sim++ = encoder_id & 1;    // id bit
         for(uint8_t i = 0; i < MAX_CHAR_NUM; i++)
             for(uint8_t j = 0; j < DATA_CHAR_BITS; j++)  // 8 bits for each character
                 *ptr_sim++ = (data[i] >> (7 - j)) & 1;
         *ptr_sim++ = true;  // end bit
+
+        String encoded_binary = "";
+        ptr_sim = send_data;
+        uint8_t bit_index = 0;
+        encoded_binary += ptr_sim[bit_index++] ? "1" : "0"; // start bit
+        encoded_binary += " ";
+        encoded_binary += ptr_sim[bit_index++] ? "1" : "0"; // sync bit
+        encoded_binary += " ";
+        encoded_binary += ptr_sim[bit_index++] ? "1" : "0"; // id bit
+        encoded_binary += " ";
+        for(; bit_index < MAX_DATA_BITS; bit_index++)       // data bits and end bit
+        {
+            encoded_binary += (*(ptr_sim + bit_index) ? "1" : "0");
+            if((bit_index - 2) % DATA_CHAR_BITS == 0)
+                encoded_binary += " ";
+        }
+        SERIAL_RESPONSE("OK " + encoded_binary);
 
         // put a trigger source
         digitalWrite(pin_trigger_source, HIGH);

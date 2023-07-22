@@ -47,7 +47,7 @@ bool Decode_ChangeVI_Th(uint8_t overlap_percentage)
   return true;
 }
 
-void DecodeRawCycleData(const volatile bool *raw_cycle_data, bool *start_bit, bool *end_bit, char *decoded_result)
+void DecodeRawCycleData(const volatile bool *raw_cycle_data, bool *start_bit, bool *sync_bit, bool *end_bit, uint8_t *decoded_id, char *decoded_result)
 {
   uint16_t c_index = 0;
   bool bit_result[DATA_CHAR_BITS];
@@ -58,6 +58,20 @@ void DecodeRawCycleData(const volatile bool *raw_cycle_data, bool *start_bit, bo
     if(raw_cycle_data[c_index++] == 1)
       h_counter++;
   *start_bit = (h_counter > 3 ? true : false);
+
+  // extract sync bit
+  h_counter = 0;
+  for(uint8_t c = 0; c < CLK_CYCLE_NUM; c++)
+    if(raw_cycle_data[c_index++] == 1)
+      h_counter++;
+  *sync_bit = (h_counter > 3 ? true : false);
+
+  // extract ID bit
+  h_counter = 0;
+  for(uint8_t c = 0; c < CLK_CYCLE_NUM; c++)
+    if(raw_cycle_data[c_index++] == 1)
+      h_counter++;
+  *decoded_id = (h_counter > 3 ? 1 : 0);
 
   // extract data bits
   for(uint8_t data_index = 0; data_index < MAX_CHAR_NUM; data_index++)
