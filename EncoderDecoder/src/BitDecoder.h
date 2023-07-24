@@ -17,7 +17,7 @@ void BitDecoderEnd();
 
 /**
  * @brief change V & I signal overlapping threshold 
- * @param overlap_percentage between 20 to 80 percent
+ * @param overlap_percentage between 10 to 80 percent
  * @return true if overlap_percentage is valid, false if it is invalid
  */
 bool Decode_ChangeVI_Th(uint8_t overlap_percentage);
@@ -38,7 +38,8 @@ void IRAM_ATTR isr_trig_source1();
 #ifdef TWO_I_CLOCKS
 void IRAM_ATTR isr_trig_source2();
 #endif
-void IRAM_ATTR isr_v_rising();
+void IRAM_ATTR isr_trig_rising();
+void IRAM_ATTR isr_decode_rising();
 //void IRAM_ATTR isr_i_falling();
 
 #endif

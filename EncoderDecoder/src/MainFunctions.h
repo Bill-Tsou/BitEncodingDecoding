@@ -17,6 +17,8 @@ enum OpMode_t
 
 void Initialize();
 
+void MainLoop(void *param);
+
 void SwitchOpMode(OpMode_t new_mode);
 OpMode_t GetOpMode();
 

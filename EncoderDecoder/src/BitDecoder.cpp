@@ -1,9 +1,11 @@
 #include "BitDecoder.h"
 
 // with default threshold values 1s / 83333 Hz = 12us, so 50% overlap = 6us
-volatile uint16_t overlap_micro_th = 6;
+volatile uint16_t overlap_trig_th = 4;
+volatile uint16_t overlap_micro_th = 4;
 volatile bool new_raw_data = false;
 
+volatile bool trig_moving_array[CLK_CYCLE_NUM] = {false};
 volatile bool raw_cycle_result[MAX_CYCLE_DATA];
 volatile uint16_t cycle_index = 0;
 
@@ -17,23 +19,34 @@ volatile uint8_t pin_i_clock_selection = pin_clock_i1;
 
 void BitDecoderSetup()
 {
-    //pinMode(pin_decode_output, OUTPUT);
+#ifdef PHYSICAL_SIMULATION
     pinMode(pin_trigger_source1, INPUT_PULLDOWN);
+#endif
+
     pinMode(pin_clock_v, INPUT_PULLDOWN);
     pinMode(pin_clock_i1, INPUT_PULLDOWN);
+
 #ifdef TWO_I_CLOCKS
     pinMode(pin_clock_i2, INPUT_PULLDOWN);
     pinMode(pin_trigger_source2, INPUT_PULLDOWN);
 #endif
 
+#ifdef PHYSICAL_SIMULATION
     // wait until trigger source is triggered
     switch_trigger_source(WAIT_FOR_TRIGGER);
+#else
+    // constantly perspecting whether I is lagged V clock signal
+    switch_trigger_source(TRIGGER_SOURCE1);
+#endif
 }
 
 void BitDecoderEnd()
 {
   detachInterrupt(digitalPinToInterrupt(pin_clock_v));
+#ifdef PHYSICAL_SIMULATION
   detachInterrupt(digitalPinToInterrupt(pin_trigger_source1));
+#endif
+
 #ifdef TWO_I_CLOCKS
   detachInterrupt(digitalPinToInterrupt(pin_trigger_source2));
 #endif
@@ -41,7 +54,7 @@ void BitDecoderEnd()
 
 bool Decode_ChangeVI_Th(uint8_t overlap_percentage)
 {
-  if(overlap_percentage < 20 || overlap_percentage > 80)
+  if(overlap_percentage < 10 || overlap_percentage > 80)
     return false; // invalid parameter
   overlap_micro_th = (uint16_t)(1.0f / RECV_CLK_RATE * 1e6 * (overlap_percentage * 0.01));
   return true;
@@ -121,30 +134,33 @@ void IRAM_ATTR switch_trigger_source(Trig_State_t new_state)
 #ifdef TWO_I_CLOCKS
     case TRIGGER_SOURCE2:
 #endif
+
+#ifdef PHYSICAL_SIMULATION
       detachInterrupt(digitalPinToInterrupt(pin_trigger_source1));
 #ifdef TWO_I_CLOCKS
       detachInterrupt(digitalPinToInterrupt(pin_trigger_source2));
+      pin_i_clock_selection = (new_state == TRIGGER_SOURCE1) ? pin_clock_i1 : pin_clock_i2;
 #endif
-
       // initialize variables
       is_triggered = true;
       is_first_data_bit = true;
       cycle_index = 0;
       for(uint8_t i = 0; i < 6; i++)
         raw_cycle_result[i] = 0;
-#ifdef TWO_I_CLOCKS
-      pin_i_clock_selection = (new_state == TRIGGER_SOURCE1) ? pin_clock_i1 : pin_clock_i2;
 #endif
-      
+
       // start decoding from V and I
-      attachInterrupt(digitalPinToInterrupt(pin_clock_v), isr_v_rising, RISING);
+      attachInterrupt(digitalPinToInterrupt(pin_clock_v), isr_trig_rising, RISING);
 
     break;
 
     default:
+#ifdef PHYSICAL_SIMULATION
       // return to triggering state
       detachInterrupt(digitalPinToInterrupt(pin_clock_v));
       attachInterrupt(digitalPinToInterrupt(pin_trigger_source1), isr_trig_source1, RISING);
+#endif
+
 #ifdef TWO_I_CLOCKS
       attachInterrupt(digitalPinToInterrupt(pin_trigger_source2), isr_trig_source2, RISING);
 #endif
@@ -164,7 +180,49 @@ void IRAM_ATTR isr_trig_source2()
 }
 #endif
 
-void IRAM_ATTR isr_v_rising()
+void IRAM_ATTR isr_trig_rising()
+{
+  micro_prev_v = micros();
+
+  uint8_t diff = 0;
+  do
+  {
+    diff = micros() - micro_prev_v;
+  } while (diff < overlap_trig_th);  // consider latency when triggering isr for 1us
+  
+  uint8_t h_cycle_samples = 0;  // high cycle samples
+  const uint8_t sample_cycles = 5;
+  for(uint8_t i = 0; i < sample_cycles; i++)
+    (digitalRead(pin_i_clock_selection) ? h_cycle_samples++ : h_cycle_samples);
+  
+  bool cycle_res = !(h_cycle_samples > (sample_cycles / 2));
+
+  uint8_t idx;
+  h_cycle_samples = 0;
+  for(idx = 0; idx < CLK_CYCLE_NUM - 1; idx++)
+  {
+    trig_moving_array[idx] = trig_moving_array[idx + 1];
+    trig_moving_array[idx] ? h_cycle_samples++ : h_cycle_samples;
+  }
+  trig_moving_array[idx] = cycle_res;
+  trig_moving_array[idx] ? h_cycle_samples++ : h_cycle_samples;
+
+  if(h_cycle_samples <= CLK_CYCLE_NUM / 2 + 1)
+    return;
+
+  detachInterrupt(digitalPinToInterrupt(pin_clock_v));
+
+  // enter triggering state
+  is_triggered = true;
+  is_first_data_bit = true;
+  cycle_index = 0;
+  for(uint16_t i = 0; i < CLK_CYCLE_NUM; i++)
+    raw_cycle_result[i] = trig_moving_array[i];
+  
+  attachInterrupt(digitalPinToInterrupt(pin_clock_v), isr_decode_rising, RISING);
+}
+
+void IRAM_ATTR isr_decode_rising()
 {
   micro_prev_v = micros();
 
@@ -189,7 +247,27 @@ void IRAM_ATTR isr_v_rising()
   }
   else if(cycle_index >= MAX_CYCLE_DATA)
   {
+#ifdef PHYSICAL_SIMULATION
     switch_trigger_source(WAIT_FOR_TRIGGER);
+#else
+    detachInterrupt(digitalPinToInterrupt(pin_clock_v));
+
+    is_triggered = false;
+    for(uint8_t i = 0; i < CLK_CYCLE_NUM; i++)
+      trig_moving_array[i] = false;
+
+    // determine whether the received data is valid
+    h_cycle_samples = 0;
+    for(int i = 0; i < MAX_CYCLE_DATA; i++)
+      if(raw_cycle_result[i])
+        h_cycle_samples++;
+    if(h_cycle_samples < MAX_CYCLE_DATA / 6)
+    {
+      BitDecoderSetup();
+      return;
+    }
+
+#endif
     new_raw_data = true;
     return;
   }

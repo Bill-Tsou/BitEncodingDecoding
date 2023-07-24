@@ -3,10 +3,11 @@
 #define CLK_CYCLE_NUM       6
 
 // data format: [1 start-bit (1)] [1 sync-bit (0)] [1 id bit] [8x8 data bits] [1 end-bit (1)] with total 68 bits
+#define DUMMY_BITS          1
 #define ID_BIT              1       // 1 id bit for differentiating encoders
 #define DATA_CHAR_BITS      8       // 8 bits for a single character
 #define MAX_CHAR_NUM        8       // send or receive 8 chars in a row
-#define MAX_DATA_BITS       (DATA_CHAR_BITS * MAX_CHAR_NUM + 3 + ID_BIT) // including start bit, end bit and sync bit
+#define MAX_DATA_BITS       (DUMMY_BITS + 2 + ID_BIT + DATA_CHAR_BITS * MAX_CHAR_NUM + 1) // including start bit, end bit and sync bit
 
 /** parameters of UART */
 #define SERIAL_TERMINATOR '\r'
@@ -69,6 +70,8 @@ void loop()
         // encode data to binary ASCII code
         volatile bool *ptr_sim = send_data;
         *ptr_sim++ = true;  // start bit
+        for(uint8_t i = 0; i < DUMMY_BITS; i++)
+          *ptr_sim++ = true;  // dummy bits
         *ptr_sim++ = false; // sync bit
         *ptr_sim++ = encoder_id & 1;    // id bit
         for(uint8_t i = 0; i < MAX_CHAR_NUM; i++)
@@ -122,5 +125,11 @@ void IRAM_ATTR isr_Callback()
         sending_new_data = false;
     }
     clock_v_counter = (++clock_v_counter) % CLK_CYCLE_NUM;
+  }
+  else
+  {
+    digitalWrite(pin_clock_i_sim, HIGH);
+      delayMicroseconds(5);
+    digitalWrite(pin_clock_i_sim, LOW);
   }
 }

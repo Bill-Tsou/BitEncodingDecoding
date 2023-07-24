@@ -1,5 +1,7 @@
 #include "MainFunctions.h"
 
+TaskHandle_t task;
+
 // annouce variable to store current operation mode
 OpMode_t mode;
 uint8_t encoder_id = 0;
@@ -15,6 +17,57 @@ void Initialize()
 
     // set the initial threshold of V & I overlapping percentage when decoding
     Decode_ChangeVI_Th(40);
+
+    //xTaskCreatePinnedToCore(MainLoop, "CommLoop", 10240, NULL, 0, &task, 0);
+}
+
+void MainLoop(void *param)
+{
+    while(true)
+    {
+        if(IsDecodeTriggered())
+        {   // do nothing when triggered, but record data to raw_cycle_result array
+            delay(200);
+        }
+        else if(Serial.available())
+        {
+            // pause for dealing with decoding interrupts while UART data transmission
+            if(GetOpMode() == OpMode_t::Decoding)
+            {
+                BitDecoderEnd();
+                delayMicroseconds(100);
+            }
+
+            String cmd_buf = Serial.readStringUntil(SERIAL_TERMINATOR);
+            int splitter_index = cmd_buf.indexOf(' ');
+            String command = "", parameter = "";
+            if(splitter_index < 0)
+                command = cmd_buf;
+            else
+            {
+                command = cmd_buf.substring(0, splitter_index);
+                parameter = cmd_buf.substring(splitter_index + 1, cmd_buf.length());
+            }
+
+            ProcessUART_Msg(command, parameter);
+
+            // update the mode to make RTOS back on interrupts procedure
+            SwitchOpMode(GetOpMode());
+        }
+        else if(GetOpMode() == OpMode_t::Decoding)
+        { // process received data when in decoding mode
+            if(IsDecodeRawDataReceived())
+            {
+                if(GetOpMode() == OpMode_t::Decoding)
+                    BitDecoderEnd();
+
+                SetDecodeRawDataReceived(false);
+                ProcessDecodeRawData();
+
+                SwitchOpMode(GetOpMode());
+            }
+        }
+    }
 }
 
 void SwitchOpMode(OpMode_t new_mode)
@@ -77,6 +130,8 @@ void ProcessUART_Msg(String command, String parameter)
             const char *data = parameter.c_str();
             volatile bool *ptr_bit = GetEncodeSendDataPtr();
             *ptr_bit++ = true;  // start bit
+            for(uint8_t i = 0; i < DUMMY_BITS; i++)
+                *ptr_bit++ = true;  // dummy bits
             *ptr_bit++ = false; // sync bit
             *ptr_bit++ = encoder_id & 1;    // id bit
             for(uint8_t i = 0; i < MAX_CHAR_NUM; i++)
@@ -114,9 +169,6 @@ void ProcessUART_Msg(String command, String parameter)
             SERIAL_RESPONSE("Invalid Percentage!");
         else
             SERIAL_RESPONSE("OK");
-            
-        // update the mode to make RTOS back on interrupts procedure
-        SwitchOpMode(GetOpMode());
     }
 }
 
@@ -148,20 +200,20 @@ void ProcessDecodeRawData()
 
     /*-------------------------------------*/
     // display start bit array
-    for(raw_data_idx = 0; raw_data_idx < 6; raw_data_idx++)
+    for(raw_data_idx = 0; raw_data_idx < CLK_CYCLE_NUM; raw_data_idx++)
         Serial.printf("%d ", (uint8_t)raw_cycle_result[raw_data_idx]);
-
-    // display data array
-    for(; raw_data_idx < (MAX_CHAR_NUM * DATA_CHAR_BITS + 1) * CLK_CYCLE_NUM; raw_data_idx++)
-    {
-        if((raw_data_idx - 6) % 48 == 0)
-            Serial.print(SERIAL_TERMINATOR);
-        Serial.printf("%d ", (uint8_t)raw_cycle_result[raw_data_idx]);
-    }
     Serial.print(SERIAL_TERMINATOR);
 
+    // display data array
+    for(uint16_t i = 1; raw_data_idx < (MAX_CHAR_NUM * DATA_CHAR_BITS + 1) * CLK_CYCLE_NUM; raw_data_idx++, i++)
+    {
+        Serial.printf("%d ", (uint8_t)raw_cycle_result[raw_data_idx]);
+        if(i % (DATA_CHAR_BITS * CLK_CYCLE_NUM) == 0)
+            Serial.print(SERIAL_TERMINATOR);
+    }
+
     // display end bit array
-    for(; raw_data_idx < MAX_CYCLE_DATA; raw_data_idx++)
+    for(uint16_t i = 1; i < CLK_CYCLE_NUM; raw_data_idx++, i++)
         Serial.printf("%d ", (uint8_t)raw_cycle_result[raw_data_idx]);
     Serial.print(SERIAL_TERMINATOR);
 #endif
