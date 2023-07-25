@@ -16,7 +16,8 @@ void Initialize()
     BitEncoderSetup();
 
     // set the initial threshold of V & I overlapping percentage when decoding
-    Decode_ChangeVI_Th(40);
+    Decode_ChangeVI_Th(40, Decode_Type_t::DECODE_TRIGGER);
+    Decode_ChangeVI_Th(40, Decode_Type_t::DECODE_DATA);
 
     //xTaskCreatePinnedToCore(MainLoop, "CommLoop", 10240, NULL, 0, &task, 0);
 }
@@ -162,10 +163,17 @@ void ProcessUART_Msg(String command, String parameter)
         else
             SERIAL_RESPONSE("Current Mode is not in Encoding Mode!");
     }
-    /** @remark for decoding */
-    else if(command == "vi_th")
+    /** @remark for triggering decoding and data decoding threshold values */
+    else if(command == "vi_th_trig")
     {
-        if(Decode_ChangeVI_Th(parameter.toInt()) == false)
+        if(Decode_ChangeVI_Th(parameter.toInt(), Decode_Type_t::DECODE_TRIGGER) == false)
+            SERIAL_RESPONSE("Invalid Percentage!");
+        else
+            SERIAL_RESPONSE("OK");
+    }
+    else if(command == "vi_th_dec")
+    {
+        if(Decode_ChangeVI_Th(parameter.toInt(), Decode_Type_t::DECODE_DATA) == false)
             SERIAL_RESPONSE("Invalid Percentage!");
         else
             SERIAL_RESPONSE("OK");

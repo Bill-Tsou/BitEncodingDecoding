@@ -38,31 +38,40 @@ namespace BitEncoderDecoderGUI
             this.comboBox_port = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.label_decode_trig_th = new System.Windows.Forms.Label();
+            this.trackBar_decode_trig_th = new System.Windows.Forms.TrackBar();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.trackBar_decode_data_th = new System.Windows.Forms.TrackBar();
+            this.label_decode_data_th = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.comboBox_encode_id = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.label_decoded_id2 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
             this.label_decode_msg1 = new System.Windows.Forms.Label();
             this.label_decode_msg2 = new System.Windows.Forms.Label();
             this.label_decoded_id1 = new System.Windows.Forms.Label();
-            this.label_decode_th = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.trackBar_decode_th = new System.Windows.Forms.TrackBar();
+            this.label_decoded_id2 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
             this.button_encode_msg_send = new System.Windows.Forms.Button();
             this.textBox_encode_msg = new System.Windows.Forms.TextBox();
             this.radioButton_decode = new System.Windows.Forms.RadioButton();
             this.radioButton_encode = new System.Windows.Forms.RadioButton();
             this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
             this.timer_decode_msg = new System.Windows.Forms.Timer(this.components);
-            this.label5 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.StripMenuItem_single_msg = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            this.groupBox4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar_decode_trig_th)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar_decode_data_th)).BeginInit();
             this.groupBox3.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar_decode_th)).BeginInit();
+            this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -79,7 +88,7 @@ namespace BitEncoderDecoderGUI
             this.groupBox1.Margin = new System.Windows.Forms.Padding(5);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(5);
-            this.groupBox1.Size = new System.Drawing.Size(465, 352);
+            this.groupBox1.Size = new System.Drawing.Size(465, 415);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "UART Connection && Messages";
@@ -117,7 +126,7 @@ namespace BitEncoderDecoderGUI
             this.textBox_port_msg.Name = "textBox_port_msg";
             this.textBox_port_msg.ReadOnly = true;
             this.textBox_port_msg.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox_port_msg.Size = new System.Drawing.Size(439, 241);
+            this.textBox_port_msg.Size = new System.Drawing.Size(439, 304);
             this.textBox_port_msg.TabIndex = 1;
             this.textBox_port_msg.Visible = false;
             // 
@@ -160,23 +169,110 @@ namespace BitEncoderDecoderGUI
             this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox2.Controls.Add(this.groupBox4);
             this.groupBox2.Controls.Add(this.label4);
             this.groupBox2.Controls.Add(this.comboBox_encode_id);
             this.groupBox2.Controls.Add(this.label3);
             this.groupBox2.Controls.Add(this.groupBox3);
-            this.groupBox2.Controls.Add(this.label_decode_th);
-            this.groupBox2.Controls.Add(this.label2);
-            this.groupBox2.Controls.Add(this.trackBar_decode_th);
             this.groupBox2.Controls.Add(this.button_encode_msg_send);
             this.groupBox2.Controls.Add(this.textBox_encode_msg);
             this.groupBox2.Controls.Add(this.radioButton_decode);
             this.groupBox2.Controls.Add(this.radioButton_encode);
             this.groupBox2.Location = new System.Drawing.Point(487, 14);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(365, 352);
+            this.groupBox2.Size = new System.Drawing.Size(355, 415);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Operation Modes";
+            // 
+            // groupBox4
+            // 
+            this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox4.Controls.Add(this.label_decode_trig_th);
+            this.groupBox4.Controls.Add(this.trackBar_decode_trig_th);
+            this.groupBox4.Controls.Add(this.label7);
+            this.groupBox4.Controls.Add(this.label2);
+            this.groupBox4.Controls.Add(this.trackBar_decode_data_th);
+            this.groupBox4.Controls.Add(this.label_decode_data_th);
+            this.groupBox4.Location = new System.Drawing.Point(44, 163);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(305, 118);
+            this.groupBox4.TabIndex = 12;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "V && I Clock Threshold:";
+            // 
+            // label_decode_trig_th
+            // 
+            this.label_decode_trig_th.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label_decode_trig_th.AutoSize = true;
+            this.label_decode_trig_th.Location = new System.Drawing.Point(258, 38);
+            this.label_decode_trig_th.Name = "label_decode_trig_th";
+            this.label_decode_trig_th.Size = new System.Drawing.Size(41, 20);
+            this.label_decode_trig_th.TabIndex = 9;
+            this.label_decode_trig_th.Text = "40%";
+            // 
+            // trackBar_decode_trig_th
+            // 
+            this.trackBar_decode_trig_th.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.trackBar_decode_trig_th.AutoSize = false;
+            this.trackBar_decode_trig_th.Enabled = false;
+            this.trackBar_decode_trig_th.Location = new System.Drawing.Point(123, 38);
+            this.trackBar_decode_trig_th.Maximum = 80;
+            this.trackBar_decode_trig_th.Minimum = 20;
+            this.trackBar_decode_trig_th.Name = "trackBar_decode_trig_th";
+            this.trackBar_decode_trig_th.Size = new System.Drawing.Size(129, 35);
+            this.trackBar_decode_trig_th.TabIndex = 8;
+            this.trackBar_decode_trig_th.TickFrequency = 10;
+            this.trackBar_decode_trig_th.Value = 40;
+            this.trackBar_decode_trig_th.Scroll += new System.EventHandler(this.trackBar_decode_trig_th_Scroll);
+            this.trackBar_decode_trig_th.MouseCaptureChanged += new System.EventHandler(this.trackBar_decode_trig_th_MouseCaptureChanged);
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(6, 38);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(91, 20);
+            this.label7.TabIndex = 7;
+            this.label7.Text = "Triggering:";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(6, 79);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(111, 20);
+            this.label2.TabIndex = 5;
+            this.label2.Text = "Data Decode:";
+            // 
+            // trackBar_decode_data_th
+            // 
+            this.trackBar_decode_data_th.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.trackBar_decode_data_th.AutoSize = false;
+            this.trackBar_decode_data_th.Enabled = false;
+            this.trackBar_decode_data_th.Location = new System.Drawing.Point(123, 79);
+            this.trackBar_decode_data_th.Maximum = 80;
+            this.trackBar_decode_data_th.Minimum = 20;
+            this.trackBar_decode_data_th.Name = "trackBar_decode_data_th";
+            this.trackBar_decode_data_th.Size = new System.Drawing.Size(129, 35);
+            this.trackBar_decode_data_th.TabIndex = 4;
+            this.trackBar_decode_data_th.TickFrequency = 10;
+            this.trackBar_decode_data_th.Value = 40;
+            this.trackBar_decode_data_th.Scroll += new System.EventHandler(this.trackBar_decode_th_Scroll);
+            this.trackBar_decode_data_th.MouseCaptureChanged += new System.EventHandler(this.trackBar_decode_th_MouseCaptureChanged);
+            // 
+            // label_decode_data_th
+            // 
+            this.label_decode_data_th.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label_decode_data_th.AutoSize = true;
+            this.label_decode_data_th.Location = new System.Drawing.Point(258, 79);
+            this.label_decode_data_th.Name = "label_decode_data_th";
+            this.label_decode_data_th.Size = new System.Drawing.Size(41, 20);
+            this.label_decode_data_th.TabIndex = 6;
+            this.label_decode_data_th.Text = "40%";
             // 
             // label4
             // 
@@ -199,7 +295,7 @@ namespace BitEncoderDecoderGUI
             "1"});
             this.comboBox_encode_id.Location = new System.Drawing.Point(102, 58);
             this.comboBox_encode_id.Name = "comboBox_encode_id";
-            this.comboBox_encode_id.Size = new System.Drawing.Size(256, 28);
+            this.comboBox_encode_id.Size = new System.Drawing.Size(246, 28);
             this.comboBox_encode_id.TabIndex = 10;
             // 
             // label3
@@ -217,9 +313,9 @@ namespace BitEncoderDecoderGUI
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox3.Controls.Add(this.tableLayoutPanel1);
-            this.groupBox3.Location = new System.Drawing.Point(56, 204);
+            this.groupBox3.Location = new System.Drawing.Point(44, 287);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(303, 138);
+            this.groupBox3.Size = new System.Drawing.Size(305, 118);
             this.groupBox3.TabIndex = 8;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Decoded Message";
@@ -246,21 +342,21 @@ namespace BitEncoderDecoderGUI
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(291, 104);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(293, 84);
             this.tableLayoutPanel1.TabIndex = 9;
             // 
-            // label_decoded_id2
+            // label6
             // 
-            this.label_decoded_id2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_decoded_id2.AutoSize = true;
-            this.label_decoded_id2.Location = new System.Drawing.Point(61, 52);
-            this.label_decoded_id2.Name = "label_decoded_id2";
-            this.label_decoded_id2.Size = new System.Drawing.Size(59, 52);
-            this.label_decoded_id2.TabIndex = 10;
-            this.label_decoded_id2.Text = "ID -";
-            this.label_decoded_id2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(3, 42);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(52, 42);
+            this.label6.TabIndex = 12;
+            this.label6.Text = "No.2";
+            this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // label_decode_msg1
             // 
@@ -271,7 +367,7 @@ namespace BitEncoderDecoderGUI
             this.label_decode_msg1.ForeColor = System.Drawing.Color.Blue;
             this.label_decode_msg1.Location = new System.Drawing.Point(126, 0);
             this.label_decode_msg1.Name = "label_decode_msg1";
-            this.label_decode_msg1.Size = new System.Drawing.Size(162, 52);
+            this.label_decode_msg1.Size = new System.Drawing.Size(164, 42);
             this.label_decode_msg1.TabIndex = 7;
             this.label_decode_msg1.Text = "--------";
             this.label_decode_msg1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -283,9 +379,9 @@ namespace BitEncoderDecoderGUI
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label_decode_msg2.Font = new System.Drawing.Font("Arial Rounded MT Bold", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label_decode_msg2.ForeColor = System.Drawing.Color.Blue;
-            this.label_decode_msg2.Location = new System.Drawing.Point(126, 52);
+            this.label_decode_msg2.Location = new System.Drawing.Point(126, 42);
             this.label_decode_msg2.Name = "label_decode_msg2";
-            this.label_decode_msg2.Size = new System.Drawing.Size(162, 52);
+            this.label_decode_msg2.Size = new System.Drawing.Size(164, 42);
             this.label_decode_msg2.TabIndex = 8;
             this.label_decode_msg2.Text = "--------";
             this.label_decode_msg2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -298,52 +394,42 @@ namespace BitEncoderDecoderGUI
             this.label_decoded_id1.AutoSize = true;
             this.label_decoded_id1.Location = new System.Drawing.Point(61, 0);
             this.label_decoded_id1.Name = "label_decoded_id1";
-            this.label_decoded_id1.Size = new System.Drawing.Size(59, 52);
+            this.label_decoded_id1.Size = new System.Drawing.Size(59, 42);
             this.label_decoded_id1.TabIndex = 9;
             this.label_decoded_id1.Text = "ID -";
             this.label_decoded_id1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // label_decode_th
+            // label_decoded_id2
             // 
-            this.label_decode_th.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_decode_th.AutoSize = true;
-            this.label_decode_th.Location = new System.Drawing.Point(318, 163);
-            this.label_decode_th.Name = "label_decode_th";
-            this.label_decode_th.Size = new System.Drawing.Size(41, 20);
-            this.label_decode_th.TabIndex = 6;
-            this.label_decode_th.Text = "50%";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(52, 163);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(176, 20);
-            this.label2.TabIndex = 5;
-            this.label2.Text = "V && I Clock Threshold:";
-            // 
-            // trackBar_decode_th
-            // 
-            this.trackBar_decode_th.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.label_decoded_id2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.trackBar_decode_th.AutoSize = false;
-            this.trackBar_decode_th.Enabled = false;
-            this.trackBar_decode_th.Location = new System.Drawing.Point(234, 163);
-            this.trackBar_decode_th.Maximum = 80;
-            this.trackBar_decode_th.Minimum = 20;
-            this.trackBar_decode_th.Name = "trackBar_decode_th";
-            this.trackBar_decode_th.Size = new System.Drawing.Size(78, 35);
-            this.trackBar_decode_th.TabIndex = 4;
-            this.trackBar_decode_th.TickFrequency = 10;
-            this.trackBar_decode_th.Value = 50;
-            this.trackBar_decode_th.Scroll += new System.EventHandler(this.trackBar_decode_th_Scroll);
-            this.trackBar_decode_th.MouseCaptureChanged += new System.EventHandler(this.trackBar_decode_th_MouseCaptureChanged);
+            this.label_decoded_id2.AutoSize = true;
+            this.label_decoded_id2.Location = new System.Drawing.Point(61, 42);
+            this.label_decoded_id2.Name = "label_decoded_id2";
+            this.label_decoded_id2.Size = new System.Drawing.Size(59, 42);
+            this.label_decoded_id2.TabIndex = 10;
+            this.label_decoded_id2.Text = "ID -";
+            this.label_decoded_id2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label5
+            // 
+            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(3, 0);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(52, 42);
+            this.label5.TabIndex = 11;
+            this.label5.Text = "No.1";
+            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // button_encode_msg_send
             // 
             this.button_encode_msg_send.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.button_encode_msg_send.Enabled = false;
-            this.button_encode_msg_send.Location = new System.Drawing.Point(234, 93);
+            this.button_encode_msg_send.Location = new System.Drawing.Point(224, 93);
             this.button_encode_msg_send.Name = "button_encode_msg_send";
             this.button_encode_msg_send.Size = new System.Drawing.Size(125, 31);
             this.button_encode_msg_send.TabIndex = 3;
@@ -358,7 +444,7 @@ namespace BitEncoderDecoderGUI
             this.textBox_encode_msg.Enabled = false;
             this.textBox_encode_msg.Location = new System.Drawing.Point(102, 95);
             this.textBox_encode_msg.Name = "textBox_encode_msg";
-            this.textBox_encode_msg.Size = new System.Drawing.Size(126, 29);
+            this.textBox_encode_msg.Size = new System.Drawing.Size(116, 29);
             this.textBox_encode_msg.TabIndex = 2;
             this.textBox_encode_msg.Text = "ABC-1234";
             this.textBox_encode_msg.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_encode_msg_KeyDown);
@@ -394,54 +480,47 @@ namespace BitEncoderDecoderGUI
             this.timer_decode_msg.Interval = 200;
             this.timer_decode_msg.Tick += new System.EventHandler(this.timer_decode_msg_Tick);
             // 
-            // label5
+            // contextMenuStrip1
             // 
-            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(3, 0);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(52, 52);
-            this.label5.TabIndex = 11;
-            this.label5.Text = "No.1";
-            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.StripMenuItem_single_msg});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(264, 26);
             // 
-            // label6
+            // StripMenuItem_single_msg
             // 
-            this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(3, 52);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(52, 52);
-            this.label6.TabIndex = 12;
-            this.label6.Text = "No.2";
-            this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.StripMenuItem_single_msg.Name = "StripMenuItem_single_msg";
+            this.StripMenuItem_single_msg.Size = new System.Drawing.Size(263, 22);
+            this.StripMenuItem_single_msg.Text = "Display Single Decoded Message";
+            this.StripMenuItem_single_msg.Click += new System.EventHandler(this.StripMenuItem_single_msg_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(864, 378);
+            this.ClientSize = new System.Drawing.Size(854, 441);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.Margin = new System.Windows.Forms.Padding(5);
-            this.MinimumSize = new System.Drawing.Size(870, 370);
+            this.MinimumSize = new System.Drawing.Size(870, 480);
             this.Name = "Form1";
             this.Text = "Bit Encoder Decoder GUI";
             this.Load += new System.EventHandler(this.Form1_Load);
+            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseClick);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar_decode_trig_th)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar_decode_data_th)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar_decode_th)).EndInit();
+            this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -455,9 +534,9 @@ namespace BitEncoderDecoderGUI
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.Label label_decode_msg1;
-        private System.Windows.Forms.Label label_decode_th;
+        private System.Windows.Forms.Label label_decode_data_th;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TrackBar trackBar_decode_th;
+        private System.Windows.Forms.TrackBar trackBar_decode_data_th;
         private System.Windows.Forms.Button button_encode_msg_send;
         private System.Windows.Forms.TextBox textBox_encode_msg;
         private System.Windows.Forms.RadioButton radioButton_decode;
@@ -476,6 +555,12 @@ namespace BitEncoderDecoderGUI
         private System.Windows.Forms.Label label_decoded_id1;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.Label label_decode_trig_th;
+        private System.Windows.Forms.TrackBar trackBar_decode_trig_th;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem StripMenuItem_single_msg;
     }
 }
 

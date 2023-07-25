@@ -52,7 +52,8 @@ namespace BitEncoderDecoderGUI
                     textBox_encode_msg.Enabled = false;
                     button_encode_msg_send.Enabled = false;
                     radioButton_decode.Enabled = false;
-                    trackBar_decode_th.Enabled = false;
+                    trackBar_decode_trig_th.Enabled = false;
+                    trackBar_decode_data_th.Enabled = false;
                 }
             }
             else
@@ -82,7 +83,8 @@ namespace BitEncoderDecoderGUI
                     }
                     else if(radioButton_decode.Checked)
                     {
-                        trackBar_decode_th.Enabled = true;
+                        trackBar_decode_trig_th.Enabled = true;
+                        trackBar_decode_data_th.Enabled = true;
                         label_decode_msg1.Text = "--------";
                         label_decode_msg2.Text = "--------";
                         radioButton_decode_CheckedChanged(sender, e);
@@ -106,7 +108,8 @@ namespace BitEncoderDecoderGUI
                 textBox_encode_msg.Enabled = true;
                 button_encode_msg_send.Enabled = true;
                 radioButton_decode.Checked = false;
-                trackBar_decode_th.Enabled = false;
+                trackBar_decode_trig_th.Enabled = false;
+                trackBar_decode_data_th.Enabled = false;
                 // switch operation mode to encoding
                 string response = Program.SendAndReadSerial("mode encode");
                 if ((response != null) && (response != "OK"))
@@ -126,14 +129,16 @@ namespace BitEncoderDecoderGUI
                 textBox_encode_msg.Enabled = false;
                 button_encode_msg_send.Enabled = false;
                 radioButton_decode.Checked = true;
-                trackBar_decode_th.Enabled = true;
+                trackBar_decode_trig_th.Enabled = true;
+                trackBar_decode_data_th.Enabled = true;
                 label_decode_msg1.Text = "--------";
                 label_decode_msg2.Text = "--------";
                 // switch operation mode to decoding
                 string response = Program.SendAndReadSerial("mode decode");
                 if ((response != null) && (response != "OK"))
                     MessageBox.Show(this, "Error: " + response, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                // set the threshold
+                // set the thresholds
+                trackBar_decode_trig_th_MouseCaptureChanged(sender, e);
                 trackBar_decode_th_MouseCaptureChanged(sender, e);
 
                 // start decoding message inspection timer
@@ -168,18 +173,40 @@ namespace BitEncoderDecoderGUI
                 button_encode_msg_send_Click(sender, e);
         }
 
+        private void trackBar_decode_trig_th_Scroll(object sender, EventArgs e)
+        {
+            label_decode_trig_th.Text = trackBar_decode_trig_th.Value.ToString() + "%";
+        }
+
+        private void trackBar_decode_trig_th_MouseCaptureChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                string response = Program.SendAndReadSerial("vi_th_trig " + Convert.ToString(trackBar_decode_trig_th.Value));
+                // regardless the response message
+                //if ((response != null) && (response != "OK"))
+                //    MessageBox.Show(this, "Error: " + response, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(this, "Unable to Change Threshold, Error: " + exception.Message, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void trackBar_decode_th_Scroll(object sender, EventArgs e)
         {
-            label_decode_th.Text = trackBar_decode_th.Value.ToString() + "%";
+            label_decode_data_th.Text = trackBar_decode_data_th.Value.ToString() + "%";
         }
 
         private void trackBar_decode_th_MouseCaptureChanged(object sender, EventArgs e)
         {   // send the message to decoder to set new selected threshold
             try {
-                string response = Program.SendAndReadSerial("vi_th " + Convert.ToString(trackBar_decode_th.Value));
-                if ((response != null) && (response != "OK"))
-                    MessageBox.Show(this, "Error: " + response, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            } catch (Exception exception) {
+                string response = Program.SendAndReadSerial("vi_th_dec " + Convert.ToString(trackBar_decode_data_th.Value));
+                // regardless the response message
+                //if ((response != null) && (response != "OK"))
+                //    MessageBox.Show(this, "Error: " + response, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception exception) {
                 MessageBox.Show(this, "Unable to Change Threshold, Error: " + exception.Message, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -229,25 +256,32 @@ Console.WriteLine("ID = " + decoded_index.ToString());
                     // store the decoded result
                     decoded_data[decoded_index] = res;
 
-                    // scan if all decoded ID data has been received
-                    bool all_decoded_data_arrived = true;
-                    foreach (int data in decoded_data_order_index)
-                        if (data == -1)
+                    if(StripMenuItem_single_msg.Checked)
+                    {   // display the single decoded result directly
+                        label_decoded_id1.Text = "ID " + decoded_index.ToString();
+                        label_decode_msg1.Text = res;
+                    }
+                    else
+                    {   // scan if all decoded ID data has been received
+                        bool all_decoded_data_arrived = true;
+                        foreach (int data in decoded_data_order_index)
+                            if (data == -1)
+                            {
+                                all_decoded_data_arrived = false;
+                                break;
+                            }
+                        if (all_decoded_data_arrived)
                         {
-                            all_decoded_data_arrived = false;
-                            break;
-                        }
-                    if (all_decoded_data_arrived)
-                    {
-                        // display the ID and corresponding results
-                        label_decoded_id1.Text = "ID " + decoded_data_order_index[0].ToString();
-                        label_decode_msg1.Text = decoded_data[decoded_data_order_index[0]];
-                        label_decoded_id2.Text = "ID " + decoded_data_order_index[1].ToString();
-                        label_decode_msg2.Text = decoded_data[decoded_data_order_index[1]];
+                            // display the ID and corresponding results
+                            label_decoded_id1.Text = "ID " + decoded_data_order_index[0].ToString();
+                            label_decode_msg1.Text = decoded_data[decoded_data_order_index[0]];
+                            label_decoded_id2.Text = "ID " + decoded_data_order_index[1].ToString();
+                            label_decode_msg2.Text = decoded_data[decoded_data_order_index[1]];
 
-                        // reset data arrival array
-                        for (int i = 0; i < decoded_data_order_index.Length; i++)
-                            decoded_data_order_index[i] = -1;
+                            // reset data arrival array
+                            for (int i = 0; i < decoded_data_order_index.Length; i++)
+                                decoded_data_order_index[i] = -1;
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -275,5 +309,25 @@ Console.WriteLine("ID = " + decoded_index.ToString());
         // variable to toggle the current display text after decoded
         private int[] decoded_data_order_index;
         private string[] decoded_data;
+
+        private void StripMenuItem_single_msg_Click(object sender, EventArgs e)
+        {
+            StripMenuItem_single_msg.Checked = !StripMenuItem_single_msg.Checked;
+            if (StripMenuItem_single_msg.Checked)
+            {
+                label_decoded_id2.Text = "----";
+                label_decode_msg2.Text = "--------";
+            }
+            else
+            {
+                label_decoded_id2.Text = "ID -";
+            }
+        }
+
+        private void Form1_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+                contextMenuStrip1.Show(Cursor.Position);
+        }
     }
 }

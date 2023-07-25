@@ -52,11 +52,21 @@ void BitDecoderEnd()
 #endif
 }
 
-bool Decode_ChangeVI_Th(uint8_t overlap_percentage)
+bool Decode_ChangeVI_Th(uint8_t overlap_percentage, Decode_Type_t decode_type)
 {
   if(overlap_percentage < 10 || overlap_percentage > 80)
     return false; // invalid parameter
-  overlap_micro_th = (uint16_t)(1.0f / RECV_CLK_RATE * 1e6 * (overlap_percentage * 0.01));
+
+  switch(decode_type)
+  {
+    case Decode_Type_t::DECODE_TRIGGER:
+      overlap_trig_th = (uint16_t)(1.0f / RECV_CLK_RATE * 1e6 * (overlap_percentage * 0.01));
+    break;
+
+    case Decode_Type_t::DECODE_DATA:
+      overlap_micro_th = (uint16_t)(1.0f / RECV_CLK_RATE * 1e6 * (overlap_percentage * 0.01));
+    break;
+  }
   return true;
 }
 
@@ -207,7 +217,7 @@ void IRAM_ATTR isr_trig_rising()
   trig_moving_array[idx] = cycle_res;
   trig_moving_array[idx] ? h_cycle_samples++ : h_cycle_samples;
 
-  if(h_cycle_samples <= CLK_CYCLE_NUM / 2 + 1)
+  if(h_cycle_samples <= CLK_CYCLE_NUM / 2 + 2)
     return;
 
   detachInterrupt(digitalPinToInterrupt(pin_clock_v));

@@ -97,7 +97,7 @@ namespace BitEncoderDecoderGUI
                 mainWindow.textBox_port_msg.AppendText("[Read] << " + ((recv_msg == null) ? "(No Response)" : recv_msg) + "\r\n");
                 if (extract_decode_msg && (recv_msg != null) && recv_msg.Contains(DecodeIdentifier))
                     break;
-            } while (extract_decode_msg && (recv_msg != null));
+            } while (extract_decode_msg && (recv_msg != null) && (recv_msg.Contains("OK") == false));
             
             return recv_msg;
         }

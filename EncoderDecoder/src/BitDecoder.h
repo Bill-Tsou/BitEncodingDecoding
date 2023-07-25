@@ -12,6 +12,12 @@ enum Trig_State_t
 #endif
 };
 
+enum Decode_Type_t
+{
+    DECODE_TRIGGER,
+    DECODE_DATA
+};
+
 void BitDecoderSetup();
 void BitDecoderEnd();
 
@@ -20,7 +26,7 @@ void BitDecoderEnd();
  * @param overlap_percentage between 10 to 80 percent
  * @return true if overlap_percentage is valid, false if it is invalid
  */
-bool Decode_ChangeVI_Th(uint8_t overlap_percentage);
+bool Decode_ChangeVI_Th(uint8_t overlap_percentage, Decode_Type_t decode_type);
 
 void DecodeRawCycleData(const volatile bool *raw_cycle_data, bool *start_bit, bool *sync_bit, bool *end_bit, uint8_t *decoded_id, char *decoded_result);
 
